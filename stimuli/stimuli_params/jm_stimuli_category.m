@@ -43,7 +43,7 @@ CatB_train_feature_set = [
     3 5 3;
     3 5 5;
     ];%3 features + category label
-CatB_train_feature_set = [CatB_train_feature_set ones(length(temp),1)];
+CatB_train_feature_set = [CatB_train_feature_set zeros(length(temp),1)];
 
 Cat_train_set = [CatA_train_feature_set; CatB_train_feature_set];
 

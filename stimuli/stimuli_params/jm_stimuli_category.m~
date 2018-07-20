@@ -26,8 +26,6 @@ CatA_train_feature_set = [
     2 2 5;
     ];%3 features + category label
 
-CatA_train_feature_set = [CatA_train_feature_set ones(length(temp),1)];
-
 %%
 %category B: training
 %F1_freq = [4 6 10 6];
@@ -43,7 +41,6 @@ CatB_train_feature_set = [
     3 5 3;
     3 5 5;
     ];%3 features + category label
-CatB_train_feature_set = [CatB_train_feature_set ones(length(temp),1)];
 
 Cat_train_set = [CatA_train_feature_set; CatB_train_feature_set];
 
@@ -63,7 +60,7 @@ for ii = 10:10:100
 h=figure(1);scatter3(Cat_train_set(:,1),Cat_train_set(:,2),Cat_train_set(:,3),120,C,'fill')
 view(ii,30)
 img_name = ['stimuli_dimension_train_',num2str(ii,'%03d'),'.jpg'];
-saveas(h,img_name)
+%saveas(h,img_name)
 pause
 end
 
@@ -122,12 +119,12 @@ for ii = 10:10:100
 h=figure(2);scatter3(Cat(:,1),Cat(:,2),Cat(:,3),120,C,'fill')
 view(ii,30)
 img_name = ['stimuli_dimension_train_test_',num2str(ii,'%03d'),'.jpg'];
-saveas(h,img_name)
+%saveas(h,img_name)
 pause
 end
 
 h=figure(3);scatter3(New_set(:,1),New_set(:,2),New_set(:,3),120,'fill')
-img_name = ['jm_stimuli_dimension_test.jpg'];
+img_name = ['stimuli_dimension_test.jpg'];
 saveas(h,img_name)
 %% save stimuli parameters
 csvwrite(fname,Cat)

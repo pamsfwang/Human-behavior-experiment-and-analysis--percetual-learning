@@ -105,9 +105,11 @@ temp3 = eye(52);
 Cat_train_set = [tt temp3];
 Cat_labels = zeros(52,1);
 Cat_labels(1:26)=1;
+Item_labels=1:size(Cat_train_set,1);
+Item_labels = Item_labels';
 
 %%save training stimuli parameters
-csvwrite(fname_train,[Cat_train_set,Cat_labels])
+csvwrite(fname_train,[Cat_train_set,Item_labels,Cat_labels])
 
 %% New stimuli
 %specify new features:
@@ -180,12 +182,14 @@ temp3new = eye(26);
 New_set = [tnew temp3new];
 New_labels = zeros(26,1);
 New_labels(1:13)=1;
+New_item_labels = 1:size(New_set,1);
+New_item_labels = New_item_labels';
 %%save training stimuli parameters
-csvwrite(fname_test,[tnew New_labels])
+csvwrite(fname_test,[New_set New_item_labels New_labels])
 
 %%% labels for train and test stimuli sets
-Cat_train_set = [Cat_train_set ones(size(Cat_train_set,1),1)];
-New_set = [[tnew New_labels] zeros(size(New_set,1),1)];
+%Cat_train_set = [Cat_train_set ones(size(Cat_train_set,1),1)];
+%New_set = [[tnew New_labels] zeros(size(New_set,1),1)];
 %Cat = [Cat_train_set; New_set];
 
 %%%Plot

@@ -1,9 +1,12 @@
 %Shao-Fang Wang 2018
 %file name
 fname = 'stimuli_param_60features.csv';
+fname_train_2F = 'stimuli_param_8features_t
 fname_train = 'stimuli_param_60features_train.csv';
+fname_trainlabels = 'stimuli_param_60features_train_labels.csv';
 
 fname_test = 'stimuli_param_60features_test.csv';
+fname_testlabels = 'stimuli_param_60features_test_labels.csv';
 %specify training features 
 F1 = [1,2,3,4];
 F2 = [1,2,3,4];
@@ -99,6 +102,9 @@ for ii = 1:length(temp2)
     n = n+1;
 end
 
+
+%%save training stimuli parameters first 2 features
+csvwrite(
 %%feature03
 temp3 = eye(52);
 

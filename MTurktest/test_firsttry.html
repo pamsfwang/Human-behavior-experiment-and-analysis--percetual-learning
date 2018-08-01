@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="stylesheet.css" type="text/css" charset="utf-8">
+<script type="text/javascript" src="jquery-1.7.1.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	var trialNum = 10;
+	var i = 0;
+	/* var word = ["male", "female", "male", "female"];*/
+	var fileName = ["CatA_viewpoint01_01.jpg", "CatA_viewpoint01_02.jpg", "CatA_viewpoint01_03.jpg", "CatA_viewpoint01_04.jpg", "CatA_viewpoint01_05.jpg", "CatA_viewpoint01_06.jpg", "CatA_viewpoint01_07.jpg", "CatA_viewpoint01_08.jpg", "CatA_viewpoint01_09.jpg',"CatA_viewpoint01_10.jpg"];
+	var imgs = new Array(trialNum);
+	var imgCount = 0;
+	
+	var canvas = document.getElementById("myCanvas"); /*canvas ID
+	in body */
+	var ctx = canvas.getContext("2d");
+	
+	function loadImage()
+	{
+		if (imgCount < trialNum)
+		{
+			imgs[imgCount] = new Image();
+			imgs[imgCount].src=fileName[imgCount];
+			imgs[imgCount].onload=loadImage;
+			imgCount++;
+		}
+		else
+		{
+			runTrial(); /* after loading all the images,
+	start running the experiment */
+		}
+	}
+	
+	function runTrial()
+	{
+		if (i < trialNum)
+		{
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.drawImage(imgs[i], 142, 115);
+			ctx.font="60px Arial";
+			ctx.fillStyle="red";
+			ctx.textBaseline="middle";
+			ctx.textAlign="center";
+			ctx.fillText(word[i], canvas.width / 2, canvas.height / 2);
+			i++;
+			setTimeout(runTrial, 2000);
+		}
+	}
+	
+	loadImage();
+});
+
+</script>
+
+</head>
+<body>
+<table>
+	<tr>
+		<td>
+			<canvas id="myCanvas" width="1000" height="1000"></canvas>
+		</td>
+	</tr>
+</table>
+</body>
+
+</html>

@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
+<!-- import library and style sheet -->
 <link rel="stylesheet" href="stylesheet.css" type="text/css" charset="utf-8">
 <script type="text/javascript" src="jquery-1.7.1.js"></script>
 <script type="text/javascript">
+
+/*start coding the task*/
 $(document).ready(function(){
-	var trialNum = 10;
+	var ImgNum = 10;
+	var TrialNum = ImgNum*2;
 	var i = 0;
-	/* var word = ["male", "female", "male", "female"];*/
-	var fileName = ["CatA_viewpoint01_01.jpg", "CatA_viewpoint01_02.jpg", "CatA_viewpoint01_03.jpg", "CatA_viewpoint01_04.jpg", "CatA_viewpoint01_05.jpg", "CatA_viewpoint01_06.jpg", "CatA_viewpoint01_07.jpg", "CatA_viewpoint01_08.jpg", "CatA_viewpoint01_09.jpg',"CatA_viewpoint01_10.jpg"];
-	var imgs = new Array(trialNum);
+	var word = ["Identical (1) ------- Different (7) "];
+	var Cross = ["+"];
+	var fileName = ["CatA_viewpoint01_01.jpg", "CatA_viewpoint01_02.jpg", "CatA_viewpoint01_03.jpg", "CatA_viewpoint01_04.jpg", "CatA_viewpoint01_05.jpg", "CatA_viewpoint01_06.jpg", "CatA_viewpoint01_07.jpg", "CatA_viewpoint01_08.jpg", "CatA_viewpoint01_09.jpg","CatA_viewpoint01_10.jpg"];
+	var imgs = new Array(ImgNum);
 	var imgCount = 0;
+	var tempImgCount = 0;
 	
 	var canvas = document.getElementById("myCanvas"); /*canvas ID
 	in body */
@@ -18,7 +24,7 @@ $(document).ready(function(){
 	
 	function loadImage()
 	{
-		if (imgCount < trialNum)
+		if (imgCount < ImgNum)
 		{
 			imgs[imgCount] = new Image();
 			imgs[imgCount].src=fileName[imgCount];
@@ -32,22 +38,45 @@ $(document).ready(function(){
 		}
 	}
 	
-	function runTrial()
-	{
-		if (i < trialNum)
-		{
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			ctx.drawImage(imgs[i], 142, 115);
-			ctx.font="60px Arial";
-			ctx.fillStyle="red";
-			ctx.textBaseline="middle";
-			ctx.textAlign="center";
-			ctx.fillText(word[i], canvas.width / 2, canvas.height / 2);
-			i++;
-			setTimeout(runTrial, 2000);
+	function runTrial(){
+	if (i < TrialNum){
+		if ((i % 2)== 0 && (i!=0)){   
+			if ((i % 6)==0){
+					ctx.clearRect(0, 0, canvas.width, canvas.height); /*clear your canvas*/
+					ctx.font="30px Arial";
+					ctx.fillStyle="black";
+					ctx.textBaseline="Top";
+					ctx.textAlign="center";
+					ctx.fillText(word, canvas.width*0.5, canvas.height *0.5);
+					i++;
+					setTimeout(runTrial, 2000);
+				 } else{
+			    
+			    ctx.clearRect(0, 0, canvas.width, canvas.height); /*clear your canvas*/
+				ctx.drawImage(imgs[tempImgCount],50,150,800,600); /*dx, dy, dWidth, dHeight*/
+				i++;
+				tempImgCount += 1;
+				setTimeout(runTrial, 2000);}
+			} 
+		else{
+		ctx.clearRect(0, 0, canvas.width, canvas.height); /*clear your canvas*/
+		ctx.font="60px Arial";
+		ctx.fillStyle="black";
+		ctx.textBaseline="Top";
+		ctx.textAlign="center";
+		ctx.fillText(Cross, canvas.width*0.5, canvas.height *0.5);
+		i++;
+		setTimeout(runTrial, 2000);
+		}
 		}
 	}
-	
+	/*$("tabel").keypress(function(event) {
+		var key = String.fromCharCode(event.which);
+		if (key == 'p')
+		{
+			s[i - 1].pause();
+		}
+	});*/
 	loadImage();
 });
 
@@ -58,7 +87,7 @@ $(document).ready(function(){
 <table>
 	<tr>
 		<td>
-			<canvas id="myCanvas" width="1000" height="1000"></canvas>
+			<canvas id="myCanvas" width="900" height="900"></canvas>
 		</td>
 	</tr>
 </table>

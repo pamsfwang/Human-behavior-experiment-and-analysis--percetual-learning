@@ -182,8 +182,7 @@ for c = 1:length(candidate)
     end
     
     
-    fname_train = ['candidate',num2str(c),'_optimal',num2str(round(candidate(1).optima_per,2)*100),'_stimuli_param_uniqueF3_train.csv'];
-    save
+    
     csvwrite(fname_test,New_set)
     
 end

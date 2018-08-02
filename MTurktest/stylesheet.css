@@ -25,3 +25,12 @@ table {
 	text-align:center;
 	vertical-align:middle;
 }
+
+#startButton {
+  width: 150px;
+  text-align:center;
+  border: 4px outset gray;
+  background:white;
+  padding:3px;
+  margin: 0 auto;}
+  

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- import library and style sheet -->
+<link rel="stylesheet" href="stylesheet.css" type="text/css" charset="utf-8">
+<script type="text/javascript" src="jquery-1.7.1.js"></script>
+<script type="text/javascript">
+
+/* define function */
+function shuffle(o){
+  for(var j,x,i=o.length;i;j=Math.floor(Math.random()*i),x = o[--i],o[i]=o[j],o[j]=x);
+  return o;
+}
+
+function range(start, end, step){
+	var range = [];
+    var typeofStart = typeof start;
+    var typeofEnd = typeof end;
+
+	while (step > 0 ? end >= start : end <= start) {
+            range.push(start);
+            start += step;}
+            return range
+}
+
+function padZero10(number) {
+  if (number<10) { number = ("0"+number).slice(-4); }
+  return number;
+}
+
+/*start coding the task*/
+$(document).ready(function(){
+    /* define variables*/
+	var ImgNum = 12;
+	var TrialNum = 35; /*ImgNum*2;*/
+	var ImgOrder = shuffle(range(0,ImgNum-1,1)); 
+	var i = 0;
+	var word_line1 = ["Please press keys"];
+	var word_line2 = ["Same (s) or Different (d) "];
+	var Cross = ["+"];
+	var fileName = ["CatA_viewpoint01_01.jpg", "CatA_viewpoint01_02.jpg", "CatA_viewpoint01_03.jpg", "CatA_viewpoint01_04.jpg", "CatA_viewpoint01_05.jpg", "CatA_viewpoint01_06.jpg", "CatA_viewpoint01_07.jpg", "CatA_viewpoint01_08.jpg", "CatA_viewpoint01_09.jpg","CatA_viewpoint01_10.jpg", "CatA_viewpoint01_11.jpg","CatA_viewpoint01_12.jpg"];
+	var imgs = new Array(ImgNum);
+	var imgCount = 0;
+	var tempImgCount = 0;
+	
+	/*pair array =  [[2, 0], [-1, 3]] */
+	var canvas = document.getElementById("myCanvas"); /*canvas ID
+	in body */
+	var ctx = canvas.getContext("2d");
+    console.log(ImgOrder)
+	function loadImage()
+	{
+		if (imgCount < ImgNum)
+		{
+			imgs[imgCount] = new Image();
+			imgs[imgCount].src=  "CatA_viewpoint01_"+padZero10(imgCount+1)+".jpg"; /*fileName[imgCount];*/
+			imgs[imgCount].onload=loadImage;
+			imgCount++;
+		} else{   /*runTrial()*/
+			StartTask(); /* after loading all the images,
+	start running the experiment */
+		}
+	}
+	function StartTask(){
+		ctx.font="20px Arial";
+		ctx.fillStyle="black";
+		ctx.textBaseline="middle";
+		ctx.textAlign="center";
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.fillText("You will see two consecutive objects." , canvas.width*0.5, 30);
+		ctx.fillText("You need to determine whether they are the same or different.", canvas.width*0.5, 70);
+	    $("#startButton").show();	
+	}
+	
+	$("#startButton").click(function() {
+		$("#startButton").hide();
+		runTrial()
+	});
+	
+	function runTrial(){
+	if (i < TrialNum){
+		if ((i % 2)== 0 && (i!=0)){   
+			if ((i % 6)==0){
+					ctx.clearRect(0, 0, canvas.width, canvas.height); /*clear your canvas*/
+					ctx.font="30px Arial";
+					ctx.fillStyle="black";
+					ctx.textBaseline="Top";
+					ctx.textAlign="center";
+					ctx.fillText(word_line1, canvas.width*0.5, canvas.height *0.4);
+					ctx.fillText(word_line2, canvas.width*0.5, canvas.height *0.5);
+					i++;
+					setTimeout(runTrial, 2000);
+				 } else{
+			    ctx.clearRect(0, 0, canvas.width, canvas.height); /*clear your canvas*/
+				ctx.drawImage(imgs[ImgOrder[tempImgCount]],50,150,800,600); /*dx, dy, dWidth, dHeight*/
+				console.log(imgs[ImgOrder[tempImgCount]].src)
+				
+				$("body").keypress(function(event){
+				var key = String.fromCharCode(event.which);
+				var ans = -1;
+				switch(key[0]){
+					case 's':
+						ans = 1;
+						break;
+					case 'd':
+						ans = 0;
+						break;}
+				});
+				i++;
+				tempImgCount += 1;
+				setTimeout(runTrial, 2000);}
+				} else{
+		ctx.clearRect(0, 0, canvas.width, canvas.height); /*clear your canvas*/
+		ctx.font="60px Arial";
+		ctx.fillStyle="black";
+		ctx.textBaseline="Top";
+		ctx.textAlign="center";
+		ctx.fillText(Cross, canvas.width*0.5, canvas.height *0.5);
+		i++;
+		setTimeout(runTrial, 2000);}
+		}
+	}
+	
+	
+	/*$("body").keypress(function(event){
+			var key = String.fromCharCode(event.which);
+			var ans = -1;
+			switch(key[0]){
+				case 's':
+					ans = 1;
+					break;
+				case 'd':
+					ans = 0;
+					break;}
+			});*/
+		/*$("body").keypress(function(event){
+		if (!hasResponse)
+		{
+			hasResponse = true;
+			var key = String.fromCharCode(event.which);
+			d1 = new Date();
+			//data[logCount] = ["R:", congruency, seqs_scene[i], seqs_word[i], key, d1.getTime() - sOnset.getTime()];
+			
+			var ans = -1;
+			
+			switch(key[0])
+			{
+				case 's':
+					ans = 1;
+					break;
+				case 'd':
+					ans = 0;
+					break;
+			}
+			
+			ctx.font="24px Arial";
+			ctx.fillStyle="black";
+			if (ans >= 0 && ans == p_t_R[i])
+			{
+				correctCount++;
+				//ctx.clearRect(0, 0, canvas.width, canvas.height);
+				//ctx.fillText("Correct", 512, 384);
+				$("#info").text('Correct.');
+				data[logCount] = ["R:", p_t_R[i], key, d1.getTime() - sOnset.getTime(), "R"];
+			}
+			else
+			{
+				//ctx.clearRect(0, 0, canvas.width, canvas.height);
+				//ctx.fillText("Incorrect", 512, 384);
+				data[logCount] = ["R:", p_t_R[i], key, d1.getTime() - sOnset.getTime(), "W"];
+				$("#info").text('Incorrect.');
+			}
+			logCount++;
+		}
+	});*/
+	loadImage();
+});
+
+</script>
+
+</head>
+<body>
+<table>
+	<tr>
+		<td>
+			<canvas id="myCanvas" width="900" height="900"></canvas>
+			<p><button id="startButton" style="font-family: arial; color: black; font-size: 24px"> Click to start</p>
+			<p><input type = "hidden" name="RT" value = "0" id = "reactionTime"></p>
+			<p><input type = "hidden" name="ButtonPress" value = "0" id = "Answer"></p>
+		</td>
+	</tr>
+</table>
+</body>
+
+</html>

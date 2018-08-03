@@ -85,7 +85,6 @@ $(document).ready(function(){
 	});
 				
 	function runTrial(){
-	console.log(i)
 	isInRuntrial = 0; /*enable button press*/
 	if (i < 37){
 		if ((i % 2)== 0 && (i!=0)){   
@@ -101,6 +100,7 @@ $(document).ready(function(){
 					ctx.fillText(word_line2, canvas.width*0.5, canvas.height *0.5);
 					logcount++;
 					i++;
+					data[logcount] = ["R:", -1, "z", 0, "R"];
 				 } else{
 					ctx.clearRect(0, 0, canvas.width, canvas.height); /*clear your canvas*/
 					ctx.drawImage(imgs[ImgOrder[tempImgCount]],50,150,800,600); /*dx, dy, dWidth, dHeight*/
@@ -135,7 +135,6 @@ $(document).ready(function(){
 		if (isInRuntrial==1){
 			var key = String.fromCharCode(event.which);
 			d1 = new Date();
-			data[logcount-1] = ["R:", key, d1.getTime() - sOnset.getTime(), "R"];
 			var ans = -1;
 			switch(key[0]){
 				case 's':
@@ -147,7 +146,7 @@ $(document).ready(function(){
 			console.log(ans)
 			console.log(d1.getTime()-sOnset.getTime())
 			console.log(data)
-			
+			data[logcount] = ["R:", ans, key, d1.getTime() - sOnset.getTime(), "R"];
 			/*if (ans==1){
 			ctx.font="24px Arial";
 			ctx.fillStyle="black";

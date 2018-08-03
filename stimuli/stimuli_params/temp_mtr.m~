@@ -78,15 +78,6 @@ end
 %generate parameter list
 F3 = 0:0.113:6;
 for c = 1:length(candidate)
-    newdir = ['uniqueF3_F1F2_3levels_candidate',num2str(c,'%02d')];   
-    if ~exist(newdir)
-        mkdir(newdir)
-        cd(newdir)
-    else
-        cd(newdir)
-    end
-    
-    
     paramA = [];
     paramB = [];
     for irow = 1:size(candidate(c).mtrCatA,1)
@@ -155,8 +146,8 @@ for c = 1:length(candidate)
         h=figure(1);scatter3(candidate(c).param(:,1),candidate(c).param(:,2),candidate(c).param(:,3),120,C,'fill')
         view(ii,30)
         title(['candidate ' num2str(c) ' optimal ' num2str(candidate(c).optima_per) ' stimuli dimension train ',num2str(ii,'%03d')])
-        img_name = ['candidate' num2str(c) 'optimal' num2str(candidate(c).optima_per) 'stimuli_dimension_train',num2str(ii,'%03d'),'.jpg'];
-        saveas(h,img_name)
+        %img_name = ['candidate' num2str(c) 'optimal' num2str(candidate(c).optima_per) 'stimuli_dimension_train',num2str(ii,'%03d','.jpg')];
+        %saveas(h,img_name)
         pause
     end
     
@@ -213,17 +204,11 @@ saveas(h,img_name)
 pause
 end%     
 %     
-     fname_train = ['candidate',num2str(c),'_optimal',num2str(round(candidate(1).optima_per,2)*100),'_stimuli_param_uniqueF3_train.csv'];
+%     fname_train = ['candidate',num2str(c),'_optimal',num2str(round(candidate(1).optima_per,2)*100),'_stimuli_param_uniqueF3_train.csv'];
 %     save
-     csvwrite(fname_train,candidate(c).paramlabels)
-     
-     fname_test = ['candidate',num2str(c),'_optimal',num2str(round(candidate(1).optima_per,2)*100),'_stimuli_param_uniqueF3_test.csv'];
-%     save
-     csvwrite(fname_test,candidate(c).Newparamlabels)
-cd ../ 
+%     csvwrite(fname_test,New_set)
+    
 end
-
-save('uniqueF3_F1F2_3levels_candidates','candidate')
 
 
 

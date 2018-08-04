@@ -36,7 +36,7 @@ $(document).ready(function(){
 	var ImgOrder = shuffle(range(0,ImgNum-1,1)); 
 	var i = 0;
 	var word_line1 = ["Please press keys"];
-	var word_line2 = ["Same (s) or Different (d) "];
+	var word_line2 = ["1 2 3 4 5 6 7"];
 	var fileName = ["CatA_viewpoint01_01.jpg", "CatA_viewpoint01_02.jpg", "CatA_viewpoint01_03.jpg", "CatA_viewpoint01_04.jpg", "CatA_viewpoint01_05.jpg", "CatA_viewpoint01_06.jpg", "CatA_viewpoint01_07.jpg", "CatA_viewpoint01_08.jpg", "CatA_viewpoint01_09.jpg","CatA_viewpoint01_10.jpg", "CatA_viewpoint01_11.jpg","CatA_viewpoint01_12.jpg"];
 	var imgs = new Array(ImgNum);
 	var imgCount = 0;
@@ -73,9 +73,9 @@ $(document).ready(function(){
 		ctx.textAlign="center";
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.fillText("You will see a series of objects." , canvas.width*0.5, 30);
-		ctx.fillText("You need to determine whether every two objects are the same or different.", canvas.width*0.5, 70);
+		ctx.fillText("You need to determine how every two objects are different using a 1-7 scale.", canvas.width*0.5, 70);
 		ctx.fillText("You will be using your keyboard to make your responses.", canvas.width*0.5, 110);
-		ctx.fillText("Please pres S to indicate same and D to indicate different. ", canvas.width*0.5, 150);
+		ctx.fillText("Please pres 1 to indicate the two objects are identical and 7 to indicate they are different. ", canvas.width*0.5, 150);
 	    $("#startButton").show();	
 	}
 	
@@ -100,7 +100,7 @@ $(document).ready(function(){
 					ctx.fillText(word_line2, canvas.width*0.5, canvas.height *0.5);
 					logcount++;
 					i++;
-					data[logcount] = ["R:", -1, "z", 0, "R"];
+					data[logcount-1] = ["R:", -1, "-1", 0, ImgOrder[tempImgCount-1],ImgOrder[tempImgCount], "R"]; /*save data default*/
 				 } else{
 					ctx.clearRect(0, 0, canvas.width, canvas.height); /*clear your canvas*/
 					ctx.drawImage(imgs[ImgOrder[tempImgCount]],50,150,800,600); /*dx, dy, dWidth, dHeight*/
@@ -134,44 +134,38 @@ $(document).ready(function(){
 		$("body").keypress(function(event){
 		if (isInRuntrial==1){
 			var key = String.fromCharCode(event.which);
+			var ans = -1
 			d1 = new Date();
-			var ans = -1;
-			switch(key[0]){
-				case 's':
+			switch(key[0])
+			{
+				case '1':
 					ans = 1;
 					break;
-				case 'd':
-					ans = 0;
-					break;}
-			console.log(ans)
+				case '2':
+					ans = 2;
+					break;
+				case '3':
+					ans = 3;
+					break;
+				case '4':
+					ans = 4;
+					break;
+				case '5':
+					ans = 5;
+					break;
+				case '6':
+					ans = 6;
+					break;
+				case '7':
+					ans = 7;
+					break;
+			}
+			data[logcount-1] = ["R:", ans, key, d1.getTime() - sOnset.getTime(),ImgOrder[tempImgCount-1],ImgOrder[tempImgCount], "R"];
+			
 			console.log(d1.getTime()-sOnset.getTime())
 			console.log(data)
-			data[logcount] = ["R:", ans, key, d1.getTime() - sOnset.getTime(), "R"];
-			/*if (ans==1){
-			ctx.font="24px Arial";
-			ctx.fillStyle="black";
-			ctx.fillText("Correct", canvas.width*0.5, canvas.height *0.5);
-			}*/
-			
-			/*ctx.font="24px Arial";
-			ctx.fillStyle="black";
-			if (ans >= 0 && ans == p_t_R[i])
-			{
-				correctCount++;
-				//ctx.clearRect(0, 0, canvas.width, canvas.height);
-				//ctx.fillText("Correct", 512, 384);
-				$("#info").text('Correct.');
-				data[logCount] = ["R:", p_t_R[i], key, d1.getTime() - sOnset.getTime(), "R"];
-			}*/
-			/*data[logCount] = ["R:", [i], key, d1.getTime() - sOnset.getTime(), "R"];*/
-			
 			}else{
-				/*//ctx.clearRect(0, 0, canvas.width, canvas.height);
-				//ctx.fillText("Incorrect", 512, 384);
-				data[logCount] = ["R:", p_t_R[i], key, d1.getTime() - sOnset.getTime(), "W"];
-				$("#info").text('Incorrect.');*/
 			}
-			/*logCount++;*/
 		});
 
 	loadImage();

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="stylesheet.css" type="text/css" charset="utf-8">
+<script type="text/javascript" src="jquery-1.7.1.js"></script>
+<script type="text/javascript" src="DatabaseList.js"></script>
+<script type="text/javascript">
+var curStage = 0;
+var responseMapping = 0;
+var isTestMode = true;
+
+function shuffle(o){ //v1.0
+    for(var j, x, i = o.length; i; j = parseInt(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+    return o;
+};
+
+
+function basicPopup(url)
+{
+	popupWindow = window.open(url, "popupWindow");
+}
+
+function gup(name, tmpURL)
+{
+	var regexS = "[\\?&]"+name+"=([^&#]*)";
+	var regex = new RegExp(regexS);
+	var results = regex.exec(tmpURL);
+	if (results == null)
+	{
+		return "";
+	}
+	else
+	{
+		return results[1];
+	}
+}
+
+
+$(document).ready(function(){
+	$("#mturk_form").hide();
+	$("#instruction").hide();
+	$("#myButton").hide();
+
+	document.getElementById("assignmentId").value = gup("assignmentId", document.referrer);
+	document.getElementById("workerId").value = gup("workerId", document.referrer);
+	document.getElementById("hitId").value = gup("hitId", document.referrer);
+	
+	if (!isTestMode && (document.getElementById("assignmentId").value == "" || document.getElementById("assignmentId").value == "ASSIGNMENT_ID_NOT_AVAILABLE"))
+	{
+		$("#instruction").text("Please accept HIT first");
+		$("#instruction").show();
+		$("#myButton").hide();
+	}
+	else
+	{
+		if (testDuplicate(gup("workerId", document.referrer)))
+		{
+			$("#instruction").text("According to our database, you participated in another version of this experiment. Please return this HIT. Thank you.");
+			$("#instruction").show();
+			$("#myButton").hide();
+		}
+		else
+		{
+			updateMainMenu(0);
+			$("#myButton").click(function(){
+				switch(curStage)
+				{
+					case 0:	
+						//basicPopup("CCDStroop.html");
+						basicPopup("SameDifferent.html");
+						break;
+						
+					case 1:	
+						//basicPopup("CCDStroop.html");
+						basicPopup("Ratings.html");
+						break;
+				}
+			});
+		}
+	}
+});
+
+</script>
+</head>
+<body>
+	<table>
+		<tr>
+			<td>
+				<p style="font-family: arial; font-size: 24px">Please keep this window open at all times until you submit this HIT. Expect about 75 minutes to finish this HIT.</p>
+				<br>
+				<p id="instruction" style="font-family: arial; font-size: 24px"></p>
+				<button id="myButton" style="font-family: arial; color: black; font-size: 24px">Click</button>
+				<form id="mturk_form" method="POST" action="/~shaofang/cgi-bin/DataHandler.php" enctype="multipart/form-data">
+				<!-- <form id="mturk_form" method="POST" action="https://workersandbox.mturk.com/mturk/externalSubmit"> -->
+				<!-- <form id="mturk_form" method="POST" action="https://www.mturk.com/mturk/externalSubmit"> -->
+					<input type="hidden" id="assignmentId" name="assignmentId" value="dahlkqlkdasksss">
+					<input type="hidden" id="workerId", name="workerId", value="dashdashdlksa">
+					<input type="hidden" id="hitId", name="hitId", value="">
+					<input type="hidden" id="demographics" name="demographics" value="">
+					<input type="hidden" id="ExpName" name="ExpName" value="PL">
+					<p style="font-family: Arial; color: black; font-size: 24px">Click button to submit HIT. You should see a confirmation code on the new page. Please Use that code to submit your HIT from Mturk.</p>
+					<input id="submitButton" type="submit" name="Finish" value="Submit">
+				</form>
+			</td>
+		</tr>
+		
+	</table>
+</body>
+</html>

@@ -213,11 +213,11 @@ saveas(h,img_name)
 pause
 end%     
 %     
-     fname_train = ['candidate',num2str(c),'_optimal',num2str(round(candidate(1).optima_per,2)*100),'_stimuli_param_uniqueF3_train.csv'];
+     fname_train = ['candidate',num2str(c),'_optimal',num2str(round(candidate(c).optima_per,2)*100),'_stimuli_param_uniqueF3_train.csv'];
 %     save
      csvwrite(fname_train,candidate(c).paramlabels)
      
-     fname_test = ['candidate',num2str(c),'_optimal',num2str(round(candidate(1).optima_per,2)*100),'_stimuli_param_uniqueF3_test.csv'];
+     fname_test = ['candidate',num2str(c),'_optimal',num2str(round(candidate(c).optima_per,2)*100),'_stimuli_param_uniqueF3_test.csv'];
 %     save
      csvwrite(fname_test,candidate(c).Newparamlabels)
 cd ../ 

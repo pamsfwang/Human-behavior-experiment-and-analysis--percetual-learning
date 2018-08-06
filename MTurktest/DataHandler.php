@@ -36,7 +36,7 @@
 	    switch ($name){
 	    case "Ratings":
 			//create a specific file for data
-			$fid2 = fopen($dirName."/Ratings".$fileName.".log", 'w');
+			$fid2 = fopen($dirName."/Ratings".$fileName.".txt", 'w');
 			fwrite($fid2, $value);
 			fclose($fid2);
 			break;

@@ -37,7 +37,8 @@ $(document).ready(function(){
 	var i = 0;
 	var word_line1 = ["Please press keys"];
 	var word_line2 = ["Same (s) or Different (d) "];
-	var fileName = ["feature01_viewpoint01_1.jpg", "feature01_viewpoint01_4.jpg", "feature01_viewpoint01_7.jpg", "feature02_viewpoint01_1.jpg", "feature02_viewpoint01_4.jpg", "feature02_viewpoint01_7.jpg", "feature03_viewpoint01_1.jpg", "feature03_viewpoint01_4.jpg", "feature03_viewpoint01_7.jpg"];
+  var fileName = ["feature01_viewpoint01_1.jpg","feature01_viewpoint01_4.jpg","feature01_viewpoint01_7.jpg","feature02_viewpoint01_1.jpg","feature02_viewpoint01_4.jpg","feature02_viewpoint01_7.jpg","feature03_viewpoint01_1.jpg","feature03_viewpoint01_4.jpg","feature03_viewpoint01_7.jpg","feature03_viewpoint01_7.jpg","feature03_viewpoint01_7.jpg","feature03_viewpoint01_7.jpg"];
+
 	var imgs = new Array(ImgNum);
 	var imgCount = 0;
 	var tempImgCount = 0;
@@ -45,8 +46,7 @@ $(document).ready(function(){
 	var data = [['']];
 	var sOnset = null;
 	var logcount = 0;
-	/*pair array =  [[2, 0], [-1, 3]] */
-	var canvas = document.getElementById("myCanvas"); /*canvas ID
+    var canvas = document.getElementById("myCanvas"); /*canvas ID
 	in body */
 	var ctx = canvas.getContext("2d");
     /*console.log(ImgOrder)*/
@@ -64,6 +64,7 @@ $(document).ready(function(){
 	start running the experiment */
 		}
 	}
+                  
 	
 	function StartTask(){
 		ctx.font="20px Arial";
@@ -99,11 +100,11 @@ $(document).ready(function(){
 					ctx.fillText(word_line2, canvas.width*0.5, canvas.height *0.5);
 					logcount++;
 					i++;
-					data[logcount] = ["R:", -1, "z", 0, "R"];
+					data[logcount] = ["R:", -1, "z", 0,ImgOrder[tempImgCount-2],ImgOrder[tempImgCount-1],"R"];
 				 } else{
 					ctx.clearRect(0, 0, canvas.width, canvas.height); /*clear your canvas*/
-					ctx.drawImage(imgs[ImgOrder[tempImgCount]],50,150,800,600); /*dx, dy, dWidth, dHeight*/
-					console.log(imgs[ImgOrder[tempImgCount]].src)
+					ctx.drawImage(imgs[ImgOrder[tempImgCount]-1],50,150,800,600); /*dx, dy, dWidth, dHeight*/
+					console.log(imgs[ImgOrder[tempImgCount]-1].src)
 					console.log(ImgOrder[tempImgCount])
 					i++;
 					tempImgCount += 1;}
@@ -115,7 +116,7 @@ $(document).ready(function(){
 				ctx.textAlign="center";
 				ctx.fillText("+", canvas.width*0.5, canvas.height *0.5);
 				i++;}
-				setTimeout(runTrial, 1000);
+				setTimeout(runTrial, 2000);
 				} else{
 				ExpComplete()
 				}
@@ -146,7 +147,7 @@ $(document).ready(function(){
 			console.log(ans)
 			console.log(d1.getTime()-sOnset.getTime())
 			console.log(data)
-			data[logcount] = ["R:", ans, key, d1.getTime() - sOnset.getTime(), "R"];
+			data[logcount] = ["R:", ans, key, d1.getTime() - sOnset.getTime(),ImgOrder[tempImgCount-2],ImgOrder[tempImgCount-1],"R"];
 			/*if (ans==1){
 			ctx.font="24px Arial";
 			ctx.fillStyle="black";

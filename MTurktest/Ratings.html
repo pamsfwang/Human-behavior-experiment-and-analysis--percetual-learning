@@ -37,7 +37,7 @@ $(document).ready(function(){
 	var i = 0;
 	var word_line1 = ["Please press keys"];
 	var word_line2 = ["1 2 3 4 5 6 7"];
-	var fileName = ["CatA_viewpoint01_01.jpg", "CatA_viewpoint01_02.jpg", "CatA_viewpoint01_03.jpg", "CatA_viewpoint01_04.jpg", "CatA_viewpoint01_05.jpg", "CatA_viewpoint01_06.jpg", "CatA_viewpoint01_07.jpg", "CatA_viewpoint01_08.jpg", "CatA_viewpoint01_09.jpg","CatA_viewpoint01_10.jpg", "CatA_viewpoint01_11.jpg","CatA_viewpoint01_12.jpg"];
+	var fileName = ["feature01_viewpoint01_1.jpg","feature01_viewpoint01_4.jpg","feature01_viewpoint01_7.jpg","feature02_viewpoint01_1.jpg","feature02_viewpoint01_4.jpg","feature02_viewpoint01_7.jpg","feature03_viewpoint01_1.jpg","feature03_viewpoint01_4.jpg","feature03_viewpoint01_7.jpg","feature03_viewpoint01_7.jpg","feature03_viewpoint01_7.jpg","feature03_viewpoint01_7.jpg"];
 	var imgs = new Array(ImgNum);
 	var imgCount = 0;
 	var tempImgCount = 0;
@@ -57,7 +57,7 @@ $(document).ready(function(){
 		if (imgCount < ImgNum)
 		{
 			imgs[imgCount] = new Image();
-			imgs[imgCount].src=  "CatA_viewpoint01_"+padZero10(imgCount+1)+".jpg"; /*fileName[imgCount];*/
+			imgs[imgCount].src=  fileName[imgCount];  /*"CatA_viewpoint01_"+padZero10(imgCount+1)+".jpg"; */
 			imgs[imgCount].onload=loadImage;
 			imgCount++;
 		} else{   /*runTrial()*/

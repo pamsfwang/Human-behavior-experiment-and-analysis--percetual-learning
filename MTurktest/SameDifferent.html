@@ -32,7 +32,7 @@ function padZero10(number) {
 $(document).ready(function(){
     /* define variables*/
 	var ImgNum = 9;
-	var TrialNum = (72+36)*2+1; /*ImgNum*2; (num of images + num questions)*2+1*/
+	var TrialNum = 10;/*(72+36)*2+1; /*ImgNum*2; (num of images + num questions)*2+1*/
 	var ImgOrder = [4,9,8,3,2,1,8,7,5,4,4,2,8,2,3,2,1,8,4,6,3,9,7,4,4,1,9,1,6,7,3,5,9,6,8,9,3,1,3,7,8,4,1,6,5,9,5,8,3,6,7,2,6,2,3,4,7,9,5,1,2,9,2,5,8,6,5,6,1,7,7,5];/*shuffle(range(0,ImgNum-1,1));*/
 	var i = 0;
 	var word_line1 = ["Please press keys"];
@@ -116,7 +116,7 @@ $(document).ready(function(){
 				ctx.textAlign="center";
 				ctx.fillText("+", canvas.width*0.5, canvas.height *0.5);
 				i++;}
-				setTimeout(runTrial, 2000);
+				setTimeout(runTrial, 1000);
 				} else{
 				ExpComplete()
 				}
@@ -129,7 +129,11 @@ $(document).ready(function(){
 		ctx.textBaseline="Top";
 		ctx.textAlign="center";
 		ctx.fillText("You have completed the experiment", canvas.width*0.5, canvas.height *0.4);
-		ctx.fillText("Thank you!", canvas.width*0.5, canvas.height *0.5);
+		
+		/*For saving out data */
+		$("#SameDifferent", opener.window.document).val(data.join(";")); /*check Menu.html -- create an inden input for this*/
+		opener.updateMainMenu(2);/*go back to main menu -- check Menu.html*/
+		JavaScript:window.close();/*close windows tap*/
 	}
 	
 		$("body").keypress(function(event){
@@ -148,29 +152,9 @@ $(document).ready(function(){
 			console.log(d1.getTime()-sOnset.getTime())
 			console.log(data)
 			data[logcount] = ["R:", ans, key, d1.getTime() - sOnset.getTime(),ImgOrder[tempImgCount-2],ImgOrder[tempImgCount-1],"R"];
-			/*if (ans==1){
-			ctx.font="24px Arial";
-			ctx.fillStyle="black";
-			ctx.fillText("Correct", canvas.width*0.5, canvas.height *0.5);
-			}*/
-			
-			/*ctx.font="24px Arial";
-			ctx.fillStyle="black";
-			if (ans >= 0 && ans == p_t_R[i])
-			{
-				correctCount++;
-				//ctx.clearRect(0, 0, canvas.width, canvas.height);
-				//ctx.fillText("Correct", 512, 384);
-				$("#info").text('Correct.');
-				data[logCount] = ["R:", p_t_R[i], key, d1.getTime() - sOnset.getTime(), "R"];
-			}*/
-			/*data[logCount] = ["R:", [i], key, d1.getTime() - sOnset.getTime(), "R"];*/
 			
 			}else{
-				/*//ctx.clearRect(0, 0, canvas.width, canvas.height);
-				//ctx.fillText("Incorrect", 512, 384);
-				data[logCount] = ["R:", p_t_R[i], key, d1.getTime() - sOnset.getTime(), "W"];
-				$("#info").text('Incorrect.');*/
+
 			}
 			/*logCount++;*/
 		});

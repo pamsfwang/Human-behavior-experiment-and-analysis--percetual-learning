@@ -18,8 +18,8 @@
 	//var_dump($_GET);
 	
 	$expName = $_REQUEST['ExpName'];
-	echo "ExpName:".$expName;
-	$dirName = "../AMTData/".$expName;
+	//echo "ExpName:".$expName;
+	$dirName = "../AMTData/".$expName;//Expname from Mnenu
 	//$dirName = $expName;
 	//$dirName = .$expName;
 	if (false == is_dir($dirName)) {
@@ -40,7 +40,7 @@
 			fwrite($fid2, $value);
 			fclose($fid2);
 			break;
-		case "SameDifferent"
+		case "SameDifferent":
 			//create a specific file for data
 			$fid2 = fopen($dirName."/SameDifferent".$fileName.".txt", 'w');
 			fwrite($fid2, $value);

@@ -28,16 +28,44 @@ function padZero10(number) {
   return number;
 }
 
+
+function order(array){
+	var results = [];
+	//all combinations of images (as pairs)
+	for (let i = 0; i < array.length ; i++) {
+	  for (let j = i ; j < array.length; j++) {
+		results.push([array[i], array[j]]);
+		}
+	}
+	//randomize the orders
+    temp = shuffle(results)
+    
+    //collapse the pairs into an array (switch which one is the first at random)
+    var finalorder =[]
+    for (ii = 0; ii < temp.length; ii++) {
+		tempNum = Math.floor(Math.random() * 2);
+			if (tempNum == 0){
+				finalorder.push(temp[ii][0])
+				finalorder.push(temp[ii][1])
+			}else{
+				finalorder.push(temp[ii][1])
+				finalorder.push(temp[ii][0])
+			}
+    } 
+    return finalorder  
+}
+
 /*start coding the task*/
 $(document).ready(function(){
     /* define variables*/
 	var ImgNum = 9;
-	var TrialNum = 10;/*(72+36)*2+1; /*ImgNum*2; (num of images + num questions)*2+1*/
-	var ImgOrder = [4,9,8,3,2,1,8,7,5,4,4,2,8,2,3,2,1,8,4,6,3,9,7,4,4,1,9,1,6,7,3,5,9,6,8,9,3,1,3,7,8,4,1,6,5,9,5,8,3,6,7,2,6,2,3,4,7,9,5,1,2,9,2,5,8,6,5,6,1,7,7,5];/*shuffle(range(0,ImgNum-1,1));*/
+	var TrialNum = 30;/*(72+36)*2+1; /*ImgNum*2; (num of images + num questions)*2+1*/
+	var Imgarray = [1,2,3,4,5,6,7,8,9];
+	var ImgOrder = order(Imgarray) ;/*shuffle(range(0,ImgNum-1,1));*/
 	var i = 0;
 	var word_line1 = ["Please press keys"];
 	var word_line2 = ["Same (s) or Different (d) "];
-  var fileName = ["feature01_viewpoint01_1.jpg","feature01_viewpoint01_4.jpg","feature01_viewpoint01_7.jpg","feature02_viewpoint01_1.jpg","feature02_viewpoint01_4.jpg","feature02_viewpoint01_7.jpg","feature03_viewpoint01_1.jpg","feature03_viewpoint01_4.jpg","feature03_viewpoint01_7.jpg","feature03_viewpoint01_7.jpg","feature03_viewpoint01_7.jpg","feature03_viewpoint01_7.jpg"];
+	var fileName = ["feature01_viewpoint01_1.jpg","feature01_viewpoint01_4.jpg","feature01_viewpoint01_7.jpg","feature02_viewpoint01_1.jpg","feature02_viewpoint01_4.jpg","feature02_viewpoint01_7.jpg","feature03_viewpoint01_1.jpg","feature03_viewpoint01_4.jpg","feature03_viewpoint01_7.jpg","feature03_viewpoint01_7.jpg","feature03_viewpoint01_7.jpg","feature03_viewpoint01_7.jpg"];
 
 	var imgs = new Array(ImgNum);
 	var imgCount = 0;
@@ -101,13 +129,15 @@ $(document).ready(function(){
 					logcount++;
 					i++;
 					data[logcount] = ["R:", -1, "z", 0,ImgOrder[tempImgCount-2],ImgOrder[tempImgCount-1],"R"];
+					setTimeout(runTrial, 2000);
 				 } else{
 					ctx.clearRect(0, 0, canvas.width, canvas.height); /*clear your canvas*/
-					ctx.drawImage(imgs[ImgOrder[tempImgCount]-1],50,150,800,600); /*dx, dy, dWidth, dHeight*/
+					ctx.drawImage(imgs[ImgOrder[tempImgCount]-1],50,100,800,600); /*dx, dy, dWidth, dHeight*/
 					console.log(imgs[ImgOrder[tempImgCount]-1].src)
 					console.log(ImgOrder[tempImgCount])
 					i++;
-					tempImgCount += 1;}
+					tempImgCount += 1;
+					setTimeout(runTrial, 2000);}
 				} else{
 				ctx.clearRect(0, 0, canvas.width, canvas.height); /*clear your canvas*/
 				ctx.font="60px Arial";
@@ -115,8 +145,9 @@ $(document).ready(function(){
 				ctx.textBaseline="Top";
 				ctx.textAlign="center";
 				ctx.fillText("+", canvas.width*0.5, canvas.height *0.5);
-				i++;}
-				setTimeout(runTrial, 1000);
+				i++;
+				setTimeout(runTrial, 1000);}
+			
 				} else{
 				ExpComplete()
 				}

@@ -1,0 +1,67 @@
+---
+title: 'MTurk'
+output:
+github_document:
+toc: yes
+toc_float: yes
+---
+
+```{r, message=FALSE, warning=FALSE, include=FALSE}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(stringr)
+library(plotly)
+
+```
+
+
+```{r}
+dt=read.table("SameDifferent30ZX6P7VF8VS4DHTMU0AQZIOO342JE.txt",header = F)
+print(dt$V1)
+
+tt = unlist(strsplit(as.character(dt$V1), ";"))
+
+key_num = list()
+key_cha = list()
+RT = list()
+Fir_img = list()
+Sec_img = list()
+for (i in 1:length(tt)){
+ temp = unlist(strsplit(tt[i],","));
+ key_num[i] = as.numeric(temp[2])
+ key_cha[i] = temp[3]
+ RT[i] = as.numeric(temp[4])
+ Fir_img[i] = as.numeric(temp[5])
+ Sec_img[i] = as.numeric(temp[6])
+}
+
+data = cbind(matrix(unlist(key_num)),unlist(key_cha),unlist(RT),unlist(Fir_img),unlist(Sec_img))
+data = data.frame(data,stringsAsFactors=FALSE)
+```
+
+```{r}
+keyNum = data.frame()
+keyCha = list()
+RT = data.frame()
+Fir_img = data.frame()
+Sec_img = data.frame()
+for (i in 1:length(tt)){
+ temp = unlist(strsplit(tt[i],","));
+ keyNum = rbind(keyNum,as.numeric(temp[2]))
+ keyCha[i] = temp[3]
+ RT = rbind(RT,as.numeric(temp[4]))
+ Fir_img = rbind(Fir_img,as.numeric(temp[5]))
+ Sec_img = rbind(Sec_img,as.numeric(temp[6]))
+}
+
+data2 = cbind(keyNum,RT, Fir_img,Sec_img)
+colnames(data2) = c("keys","rt","Fimg","Simg")
+data2 = data2[-1,]
+
+
+same = data2[data2$Fimg==data2$Simg,]
+sum(same$keys==1)/dim(same)[1]
+
+
+```

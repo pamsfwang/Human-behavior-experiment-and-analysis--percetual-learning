@@ -11,57 +11,173 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(stringr)
-library(plotly)
+```
+
+```{r}
+#plotting format
+plotformat = theme(title = element_text(face="bold",size = 17),axis.title = element_text(face = "bold",size =15), axis.text.x = element_text(size=14), axis.title.y=element_text(size=14))+theme_bw()
+
+
+```
+
+```{r}
+dataPath = '/Volumes/Macintosh HD/Users/Pam_sf_wang/Documents/AMTdata/Calibration_001/';
+#setwd('/Volumes/Macintosh HD/Users/Pam_sf_wang/Documents/AMTdata/Calibration_001/')
+SameDifferent_fnames = list.files(path = dataPath,pattern = "SameDifferent")
+Demo_fnames = list.files(path = dataPath,pattern = "demographics")
+
 
 ```
 
 
 ```{r}
-dt=read.table("SameDifferent30ZX6P7VF8VS4DHTMU0AQZIOO342JE.txt",header = F)
-print(dt$V1)
+completeFnames =list()
+totalData = data.frame()
+ic = 1;
+for (ifiles in 1:length(SameDifferent_fnames)){
+  tempFile = read.table(paste0(dataPath,SameDifferent_fnames[ifiles]),header = F)
+  Trials = unlist(strsplit(as.character(tempFile$V1), ";"))
+  
+  if (length(Trials)>10){
+    keyNum = data.frame()
+    RT = data.frame()
+    Fir_img = data.frame()
+    Sec_img = data.frame()
+    for (i in 1:length(Trials)){
+      temp = unlist(strsplit(Trials[i],","));
+      keyNum = rbind(keyNum,as.numeric(temp[2]))
+      RT = rbind(RT,as.numeric(temp[4]))
+      Fir_img = rbind(Fir_img,as.numeric(temp[5]))
+      Sec_img = rbind(Sec_img,as.numeric(temp[6]))
+    }
+    data = cbind(keyNum,RT, Fir_img,Sec_img)
+    colnames(data) = c("keys","rt","Fimg","Simg")
+    data = data[-1,]
+    data$subID = ifiles;
+    
+    totalData = rbind(totalData,data)
 
-tt = unlist(strsplit(as.character(dt$V1), ";"))
-
-key_num = list()
-key_cha = list()
-RT = list()
-Fir_img = list()
-Sec_img = list()
-for (i in 1:length(tt)){
- temp = unlist(strsplit(tt[i],","));
- key_num[i] = as.numeric(temp[2])
- key_cha[i] = temp[3]
- RT[i] = as.numeric(temp[4])
- Fir_img[i] = as.numeric(temp[5])
- Sec_img[i] = as.numeric(temp[6])
+    #subject ID for completing the tasks
+    completeFnames[ic] =unlist(strsplit(SameDifferent_fnames[ifiles],"SameDifferent"))[2]
+    ic = ic+1;
+  }else{
+  }
+  
 }
-
-data = cbind(matrix(unlist(key_num)),unlist(key_cha),unlist(RT),unlist(Fir_img),unlist(Sec_img))
-data = data.frame(data,stringsAsFactors=FALSE)
 ```
 
 ```{r}
-keyNum = data.frame()
-keyCha = list()
-RT = data.frame()
-Fir_img = data.frame()
-Sec_img = data.frame()
-for (i in 1:length(tt)){
- temp = unlist(strsplit(tt[i],","));
- keyNum = rbind(keyNum,as.numeric(temp[2]))
- keyCha[i] = temp[3]
- RT = rbind(RT,as.numeric(temp[4]))
- Fir_img = rbind(Fir_img,as.numeric(temp[5]))
- Sec_img = rbind(Sec_img,as.numeric(temp[6]))
-}
+completeFnames = unlist(completeFnames)
+#trial conditions: different:0; same:1 (same as keys)
+totalData$cond = 0;
+totalData$cond[totalData$Fimg==totalData$Simg]=1;
 
-data2 = cbind(keyNum,RT, Fir_img,Sec_img)
-colnames(data2) = c("keys","rt","Fimg","Simg")
-data2 = data2[-1,]
+#assign feature cat & levels
+totalData$Fimg_Feature = 0;
+totalData$Fimg_Feature[totalData$Fimg==1]=1;
+totalData$Fimg_Feature[totalData$Fimg==2]=1;
+totalData$Fimg_Feature[totalData$Fimg==3]=1;
+
+totalData$Fimg_Feature[totalData$Fimg==4]=2;
+totalData$Fimg_Feature[totalData$Fimg==5]=2;
+totalData$Fimg_Feature[totalData$Fimg==6]=2;
+
+totalData$Fimg_Feature[totalData$Fimg==7]=3;
+totalData$Fimg_Feature[totalData$Fimg==8]=3;
+totalData$Fimg_Feature[totalData$Fimg==9]=3;
+
+totalData$Fimg_Feature_level = 0;
+totalData$Fimg_Feature_level[totalData$Fimg==1]=1;
+totalData$Fimg_Feature_level[totalData$Fimg==2]=2;
+totalData$Fimg_Feature_level[totalData$Fimg==3]=3;
+
+totalData$Fimg_Feature_level[totalData$Fimg==4]=1;
+totalData$Fimg_Feature_level[totalData$Fimg==5]=2;
+totalData$Fimg_Feature_level[totalData$Fimg==6]=3;
+
+totalData$Fimg_Feature_level[totalData$Fimg==7]=1;
+totalData$Fimg_Feature_level[totalData$Fimg==8]=2;
+totalData$Fimg_Feature_level[totalData$Fimg==9]=3;
+
+#assign feature cat
+totalData$Simg_Feature = 0;
+totalData$Simg_Feature[totalData$Simg==1]=1;
+totalData$Simg_Feature[totalData$Simg==2]=1;
+totalData$Simg_Feature[totalData$Simg==3]=1;
+
+totalData$Simg_Feature[totalData$Simg==4]=2;
+totalData$Simg_Feature[totalData$Simg==5]=2;
+totalData$Simg_Feature[totalData$Simg==6]=2;
+
+totalData$Simg_Feature[totalData$Simg==7]=3;
+totalData$Simg_Feature[totalData$Simg==8]=3;
+totalData$Simg_Feature[totalData$Simg==9]=3;
 
 
-same = data2[data2$Fimg==data2$Simg,]
-sum(same$keys==1)/dim(same)[1]
+totalData$Simg_Feature_level = 0;
+totalData$Simg_Feature_level[totalData$Simg==1]=1;
+totalData$Simg_Feature_level[totalData$Simg==2]=2;
+totalData$Simg_Feature_level[totalData$Simg==3]=3;
+
+totalData$Simg_Feature_level[totalData$Simg==4]=1;
+totalData$Simg_Feature_level[totalData$Simg==5]=2;
+totalData$Simg_Feature_level[totalData$Simg==6]=3;
+
+totalData$Simg_Feature_level[totalData$Simg==7]=1;
+totalData$Simg_Feature_level[totalData$Simg==8]=2;
+totalData$Simg_Feature_level[totalData$Simg==9]=3;
+
+#switch features 
+totalData$switchFeature = 0;
+totalData$switchFeature[totalData$Fimg_Feature!=totalData$Simg_Feature]=1
+
+#switch levels
+totalData$switchLevel = 0;
+totalData$switchLevel[totalData$Fimg_Feature_level!=totalData$Simg_Feature_level]=1
+
+#same feature diff levels
+totalData$SameFeature = 0;
+totalData$SameFeature[totalData$Fimg_Feature == totalData$Simg_Feature]=1
+```
+
+
+
+```{r}
+basic = totalData %>% group_by(subID) %>% summarize(num_noresposnes = sum(keys==-1), num_same_resp = sum(keys==1), num_diff_resp = sum(keys==0), num_same_trials =sum(cond==1), num_diff_trials = sum(cond==0), hit = sum(keys==1&cond==1), fa= sum(keys==1&cond==0), cr = sum(keys==0&cond==0),miss = sum(keys==0&cond==1),HitRate =sum(keys==1&cond==1)/sum(cond==1), FARate = sum(keys==1&cond==0)/sum(cond==0), CRRate = sum(keys==0&cond==0)/sum(cond==0),MissRate = sum(keys==0&cond==1)/sum(cond==1), d_p = qnorm(HitRate)-qnorm(FARate))
+basic
+
+#no response subjects
+removeSub = basic$subID[basic$num_noresposnes>20]
+basic = basic %>%filter(!subID %in% removeSub)
+
+totalData = totalData%>%filter(!subID %in% removeSub)
+
+basic_longform = gather(basic, response_type, number_resp, HitRate,FARate,CRRate,MissRate)
+basic_longform
+ggplot(basic_longform, aes(x = response_type, y = number_resp, color = response_type))+
+  geom_jitter(width=0.2,alpha = 0.5)+
+  geom_boxplot(fill = "white")+
+  plotformat
+
+
+```
+
+
+```{r}
+basicFeature = totalData %>% group_by(subID) %>% summarize(num_noresposnes = sum(keys==-1), num_same_resp = sum(keys==1), num_diff_resp = sum(keys==0), num_same_trials =sum(cond==1), num_diff_trials = sum(cond==0), hitF1 = sum(keys==1&cond==1&Fimg_Feature==1), hitF2 = sum(keys==1&cond==1&Fimg_Feature==2),hitF3 = sum(keys==1&cond==1&Fimg_Feature==3),hit = sum(keys==1&cond==1),faF1= sum(keys==1&cond==0&Fimg_Feature==1), faF2= sum(keys==1&cond==0&Fimg_Feature==2),faF3= sum(keys==1&cond==0&Fimg_Feature==3),fa= sum(keys==1&cond==0),cr = sum(keys==0&cond==0),miss = sum(keys==0&cond==1),missF1 = sum(keys==0&cond==1&Fimg_Feature==1),missF2 = sum(keys==0&cond==1&Fimg_Feature==2),missF3 = sum(keys==0&cond==1&Fimg_Feature==3),hitF1Rate = hitF1/3,hitF2Rate = hitF2/3,hitF3Rate = hitF3/3, HitRateFeatures = mean(c(hitF1Rate,hitF2Rate,hitF3Rate)),faF1Rate = faF1/num_diff_trials,faF2Rate = faF2/num_diff_trials,faF3Rate = faF3/num_diff_trials, FaRateFeatures = mean(c(faF1Rate,faF2Rate,faF3Rate)),num_SameFeature_FAswitch_level = sum(keys==1&cond==0 &switchLevel==1&SameFeature==1),SameFeature_FAswitch_level_Rate = sum(keys==1&cond==0 &switchLevel==1&SameFeature==1)/fa)
+basicFeature
+
+check = totalData %>% group_by(subID) %>% summarize(fa= sum(keys==1&cond==0),SameFeature_FAswitch_level_Rate = sum(keys==1&cond==0 &switchLevel==1&SameFeature==1)/fa, DiffFeature_FAswitch_level_Rate = sum(keys==1&cond==0&switchLevel==1&SameFeature==0)/fa)
+
+
+perFeature = totalData %>% group_by(subID) %>% summarize(fa= sum(keys==1&cond==0),SameFeature_FAswitch_level_Rate = sum(keys==1&cond==0 &switchLevel==1&SameFeature==1)/fa, DiffFeature_FAswitch_level_Rate = sum(keys==1&cond==0&switchLevel==1&SameFeature==0)/fa)
+
+longform = gather(perFeature, response_type, rate, SameFeature_FAswitch_level_Rate,DiffFeature_FAswitch_level_Rate)
+longform
+ggplot(longform, aes(x = response_type, y = rate, color = response_type))+
+  geom_jitter(width=0.2,alpha = 0.5)+
+  geom_boxplot(fill = "white")+
+  plotformat
 
 
 ```

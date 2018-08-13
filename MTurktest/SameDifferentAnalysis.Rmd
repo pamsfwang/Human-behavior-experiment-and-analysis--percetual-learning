@@ -11,13 +11,18 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(stringr)
+
 ```
 
 ```{r}
 #plotting format
-plotformat = theme(title = element_text(face="bold",size = 17),axis.title = element_text(face = "bold",size =15), axis.text.x = element_text(size=14), axis.title.y=element_text(size=14))+theme_bw()
+plotformat = theme(plot.title = element_text(face="bold",size = 17,hjust = 0.5),axis.title = element_text(face = "bold",size =15), axis.text.x = element_text(size=12), axis.title.y=element_text(size=14))+theme_bw()
 
-
+#color
+Features = c('#deebf7','#9ecae1','#6baed6','#4292c6','#08519c','#08306b',
+             '#fee6ce','#fdae6b','#fd8d3c','#f16913','#a63603','#7f2704',
+             '#f0f0f0','#bdbdbd','#969696','#737373','#252525','#000000',
+             '#efedf5','#bcbddc','#9e9ac8','#807dba','#54278f','#3f007d')
 ```
 
 ```{r}
@@ -25,15 +30,24 @@ dataPath = '/Volumes/Macintosh HD/Users/Pam_sf_wang/Documents/AMTdata/Calibratio
 #setwd('/Volumes/Macintosh HD/Users/Pam_sf_wang/Documents/AMTdata/Calibration_001/')
 SameDifferent_fnames = list.files(path = dataPath,pattern = "SameDifferent")
 Demo_fnames = list.files(path = dataPath,pattern = "demographics")
-
-
 ```
 
-
+## Load data
 ```{r}
+##specify variables
+#for behavior information
 completeFnames =list()
 totalData = data.frame()
 ic = 1;
+
+#for demographic information
+gender = data.frame()
+age = data.frame()
+ethnicity= data.frame()
+race = data.frame()
+subID = data.frame()
+
+##
 for (ifiles in 1:length(SameDifferent_fnames)){
   tempFile = read.table(paste0(dataPath,SameDifferent_fnames[ifiles]),header = F)
   Trials = unlist(strsplit(as.character(tempFile$V1), ";"))
@@ -58,31 +72,50 @@ for (ifiles in 1:length(SameDifferent_fnames)){
     totalData = rbind(totalData,data)
 
     #subject ID for completing the tasks
-    completeFnames[ic] =unlist(strsplit(SameDifferent_fnames[ifiles],"SameDifferent"))[2]
+    for (ifilesDe in 1:length(Demo_fnames)){
+      if (unlist(strsplit(SameDifferent_fnames[ifiles],"SameDifferent"))[2]==unlist(strsplit(Demo_fnames[ifilesDe],"demographics"))[2]){
+        tempDemoFile = read.table(paste0(dataPath,Demo_fnames[ifilesDe]),header = F)
+        Demo_info = unlist(strsplit(as.character(tempDemoFile$V1), ";"))
+        gender[ic,1] = unlist(Demo_info[1])
+        age[ic,1]=unlist(Demo_info[2])
+        ethnicity[ic,1]=unlist(Demo_info[3])
+        race[ic,1]=unlist(Demo_info[4])
+        subID[ic,1]=unlist(ifiles)
+        }
+    completeFnames[ic] =unlist(strsplit(SameDifferent_fnames[ifiles],"SameDifferent"))[2]}
     ic = ic+1;
   }else{
   }
-  
 }
+
+demographic_information = cbind(gender,age,ethnicity,race,subID)
+colnames(demographic_information) = c("Gender","Age","Ethnicity","Race","SubID")
+demographic_information$Age = as.numeric(demographic_information$Age)
 ```
 
+## Add conditions
 ```{r}
 completeFnames = unlist(completeFnames)
 #trial conditions: different:0; same:1 (same as keys)
 totalData$cond = 0;
 totalData$cond[totalData$Fimg==totalData$Simg]=1;
-
+totalData$cond[totalData$Fimg==1 &totalData$Simg==4]=1;
+totalData$cond[totalData$Fimg==4 &totalData$Simg==1]=1;
+totalData$cond[totalData$Fimg==1 &totalData$Simg==7]=1;
+totalData$cond[totalData$Fimg==7 &totalData$Simg==1]=1;
+totalData$cond[totalData$Fimg==4 &totalData$Simg==7]=1;
+totalData$cond[totalData$Fimg==7 &totalData$Simg==4]=1;
 #assign feature cat & levels
 totalData$Fimg_Feature = 0;
-totalData$Fimg_Feature[totalData$Fimg==1]=1;
+totalData$Fimg_Feature[totalData$Fimg==1]=0;
 totalData$Fimg_Feature[totalData$Fimg==2]=1;
 totalData$Fimg_Feature[totalData$Fimg==3]=1;
 
-totalData$Fimg_Feature[totalData$Fimg==4]=2;
+totalData$Fimg_Feature[totalData$Fimg==4]=0;
 totalData$Fimg_Feature[totalData$Fimg==5]=2;
 totalData$Fimg_Feature[totalData$Fimg==6]=2;
 
-totalData$Fimg_Feature[totalData$Fimg==7]=3;
+totalData$Fimg_Feature[totalData$Fimg==7]=0;
 totalData$Fimg_Feature[totalData$Fimg==8]=3;
 totalData$Fimg_Feature[totalData$Fimg==9]=3;
 
@@ -101,15 +134,15 @@ totalData$Fimg_Feature_level[totalData$Fimg==9]=3;
 
 #assign feature cat
 totalData$Simg_Feature = 0;
-totalData$Simg_Feature[totalData$Simg==1]=1;
+totalData$Simg_Feature[totalData$Simg==1]=0;
 totalData$Simg_Feature[totalData$Simg==2]=1;
 totalData$Simg_Feature[totalData$Simg==3]=1;
 
-totalData$Simg_Feature[totalData$Simg==4]=2;
+totalData$Simg_Feature[totalData$Simg==4]=0;
 totalData$Simg_Feature[totalData$Simg==5]=2;
 totalData$Simg_Feature[totalData$Simg==6]=2;
 
-totalData$Simg_Feature[totalData$Simg==7]=3;
+totalData$Simg_Feature[totalData$Simg==7]=0;
 totalData$Simg_Feature[totalData$Simg==8]=3;
 totalData$Simg_Feature[totalData$Simg==9]=3;
 
@@ -140,44 +173,370 @@ totalData$SameFeature = 0;
 totalData$SameFeature[totalData$Fimg_Feature == totalData$Simg_Feature]=1
 ```
 
-
-
+##Identify and remove outliers 
 ```{r}
-basic = totalData %>% group_by(subID) %>% summarize(num_noresposnes = sum(keys==-1), num_same_resp = sum(keys==1), num_diff_resp = sum(keys==0), num_same_trials =sum(cond==1), num_diff_trials = sum(cond==0), hit = sum(keys==1&cond==1), fa= sum(keys==1&cond==0), cr = sum(keys==0&cond==0),miss = sum(keys==0&cond==1),HitRate =sum(keys==1&cond==1)/sum(cond==1), FARate = sum(keys==1&cond==0)/sum(cond==0), CRRate = sum(keys==0&cond==0)/sum(cond==0),MissRate = sum(keys==0&cond==1)/sum(cond==1), d_p = qnorm(HitRate)-qnorm(FARate))
-basic
+#check basic performance -- remove non-responding subjects
+temp = totalData %>% group_by(subID) %>% summarize(num_noresponses= sum(keys==-1), trialNum = length(subID))
+sprintf("total trial number: %i; Number of subjects %i",temp$trialNum[1],dim(temp)[1])
+temp
+
+ggplot(temp, aes( y= num_noresponses, x= subID))+
+  geom_point()+
+  geom_hline(yintercept=22, linetype="dashed", color = "red", size=0.5)+
+  labs(title="No responses", x ="subjuect ID", y = "number of no responses")+
+  plotformat
 
 #no response subjects
-removeSub = basic$subID[basic$num_noresposnes>20]
-basic = basic %>%filter(!subID %in% removeSub)
-
+removeSub = temp$subID[temp$num_noresponses>22]
 totalData = totalData%>%filter(!subID %in% removeSub)
+demographic_information = demographic_information%>%filter(!SubID %in%removeSub)
 
-basic_longform = gather(basic, response_type, number_resp, HitRate,FARate,CRRate,MissRate)
-basic_longform
-ggplot(basic_longform, aes(x = response_type, y = number_resp, color = response_type))+
-  geom_jitter(width=0.2,alpha = 0.5)+
-  geom_boxplot(fill = "white")+
+sprintf("remove subjects %i",length(removeSub))
+```
+
+
+##Demographic information
+```{r}
+genderCount = table(demographic_information$Gender)
+EthnicityCount = table(demographic_information$Ethnicity)
+RaceCount = table(demographic_information$Race)
+genderCount
+EthnicityCount
+RaceCount
+
+summary(demographic_information$Age)
+ggplot(demographic_information, aes(demographic_information$Age)) + 
+  geom_histogram()+
+  geom_vline(xintercept=median(demographic_information$Age), linetype="dashed", color = "red", size=0.5)+
+  #geom_vline(xintercept=mean(demographic_information$Age), linetype="dashed", color = "blue", size=0.5)+
+  labs(title = "Age Distribution",x = "age", y = "counts")+
   plotformat
+```
+
+
+##Behavior analysis
+```{r}
+basic = totalData %>% group_by(subID) %>% filter(keys>=0)%>%summarize(num_noresposnes = sum(keys==-1), num_same_resp = sum(keys==1), num_diff_resp = sum(keys==0), num_same_trials =sum(cond==1), num_diff_trials = sum(cond==0), 
+                                                    hit = sum(keys==1&cond==1), 
+                                                    fa= sum(keys==1&cond==0), 
+                                                    cr = sum(keys==0&cond==0),
+                                                    miss = sum(keys==0&cond==1),
+                                                    HitRate =sum(keys==1&cond==1)/sum(cond==1), 
+                                                    FARate = sum(keys==1&cond==0)/sum(cond==0), 
+                                                    CRRate = sum(keys==0&cond==0)/sum(cond==0),
+                                                    MissRate = sum(keys==0&cond==1)/sum(cond==1), 
+                                                    d_p = qnorm(HitRate)-qnorm(FARate))
+basic
+
+#plotting
+basic_longform = gather(basic, response_type, number_resp, HitRate,FARate,CRRate,MissRate)
+head(basic_longform)
+ggplot(basic_longform, aes(x = response_type, y = number_resp, color = response_type))+
+  geom_boxplot(fill = "white",lwd = 1)+
+  geom_jitter(width=0.2,alpha = 0.5)+
+  labs(title="Proportaion response type", x = "response type", y = "proportion")+
+  plotformat
+```
+
+
+```{r}
+basicFeature = totalData %>% group_by(subID) %>% filter(keys>=0) %>%summarize(num_noresposnes = sum(keys==-1), num_same_resp = sum(keys==1), num_diff_resp = sum(keys==0), num_same_trials =sum(cond==1), num_diff_trials = sum(cond==0), 
+hitF0 = sum(keys==1&cond==1&Fimg_Feature==0),                                                                             
+hitF1 = sum(keys==1&cond==1&Fimg_Feature==1), 
+hitF2 = sum(keys==1&cond==1&Fimg_Feature==2),
+hitF3 = sum(keys==1&cond==1&Fimg_Feature==3),
+hit = sum(keys==1&cond==1),
+hitRate = hit/num_same_trials,
+hitF0Rate = hitF0/hit,
+hitF1Rate = hitF1/hit,
+hitF2Rate = hitF2/hit,
+hitF3Rate = hitF3/hit, 
+HitRateFeatures = mean(c(hitF0Rate,hitF1Rate,hitF2Rate,hitF3Rate)),
+#faF1= sum(keys==1&cond==0&Fimg_Feature==1), 
+#faF2= sum(keys==1&cond==0&Fimg_Feature==2),
+#faF3= sum(keys==1&cond==0&Fimg_Feature==3),
+fa= sum(keys==1&cond==0),
+faRate = fa/num_diff_trials,
+faF0F1= sum(keys==1&cond==0&Fimg_Feature==0&Simg_Feature==1),
+faF0F2= sum(keys==1&cond==0&Fimg_Feature==0&Simg_Feature==2),
+faF0F3= sum(keys==1&cond==0&Fimg_Feature==0&Simg_Feature==3),
+faF0F0= sum(keys==1&cond==0&Fimg_Feature==0&Simg_Feature==0),
+faF1F0= sum(keys==1&cond==0&Fimg_Feature==1&Simg_Feature==0),
+faF1F2= sum(keys==1&cond==0&Fimg_Feature==1&Simg_Feature==2), 
+faF1F3= sum(keys==1&cond==0&Fimg_Feature==1&Simg_Feature==3),
+faF1F1= sum(keys==1&cond==0&Fimg_Feature==1&Simg_Feature==1),
+faF2F0= sum(keys==1&cond==0&Fimg_Feature==2&Simg_Feature==0),
+faF2F1= sum(keys==1&cond==0&Fimg_Feature==2&Simg_Feature==1),
+faF2F3 = sum(keys==1&cond==0&Fimg_Feature==2&Simg_Feature==3),
+faF2F2 = sum(keys==1&cond==0&Fimg_Feature==2&Simg_Feature==2),
+faF3F0=sum(keys==1&cond==0&Fimg_Feature==3&Simg_Feature==1),
+faF3F1=sum(keys==1&cond==0&Fimg_Feature==3&Simg_Feature==1),
+faF3F2=sum(keys==1&cond==0&Fimg_Feature==3&Simg_Feature==2),
+faF3F3 = sum(keys==1&cond==0&Fimg_Feature==3&Simg_Feature==3),
+#faF1Rate = faF1/fa,
+#faF2Rate = faF2/fa,
+#faF3Rate = faF3/fa, 
+#FaRateFeatures = mean(c(faF1Rate,faF2Rate,faF3Rate)),
+faF0F1Rate = faF0F1/fa,
+faF0F2Rate = faF0F2/fa,
+faF0F3Rate = faF0F3/fa,
+faF0F0Rate = faF0F0/fa,
+
+faF1F0Rate = faF1F0/fa,
+faF1F2Rate = faF1F2/fa,
+faF1F3Rate = faF1F3/fa,
+faF1F1Rate = faF1F1/fa,
+
+faF2F0Rate = faF2F0/fa,
+faF2F3Rate = faF2F3/fa,
+faF2F1Rate = faF2F1/fa,
+faF2F2Rate = faF2F2/fa,
+
+faF3F0Rate = faF3F0/fa,
+faF3F1Rate = faF3F1/fa,
+faF3F2Rate = faF3F2/fa,
+faF3F3Rate = faF3F3/fa,
+cr = sum(keys==0&cond==0),
+miss = sum(keys==0&cond==1),
+missF0 = sum(keys==0&cond==1&Fimg_Feature==0),
+missF1 = sum(keys==0&cond==1&Fimg_Feature==1),
+missF2 = sum(keys==0&cond==1&Fimg_Feature==2),
+missF3 = sum(keys==0&cond==1&Fimg_Feature==3),
+missF0Rate = sum(keys==0&cond==1&Fimg_Feature==0)/miss,
+missF1Rate = sum(keys==0&cond==1&Fimg_Feature==1)/miss,
+missF2Rate = sum(keys==0&cond==1&Fimg_Feature==2)/miss,
+missF3Rate = sum(keys==0&cond==1&Fimg_Feature==3)/miss,
+MissRateFeatures = mean(c(missF0Rate,missF1Rate,missF2Rate,missF3Rate)))
+head(basicFeature)
+```
+
+
+```{r}
+#Miss
+longform_missRate = basicFeature%>%filter(miss>0)%>%gather(response_type, rate, missF0Rate,missF1Rate,missF2Rate,missF3Rate)
+ggplot(longform_missRate, aes(x = response_type, y = rate, color = response_type))+
+  geom_boxplot(fill = "white",lwd = 1)+
+  geom_jitter(width=0.2,alpha = 0.5)+
+  labs(title="Miss: features", x = "response type", y = "miss rate")+
+    scale_color_manual(values=Features[c(4,8,12,16)])+
+  plotformat
+
+meanmiss = basicFeature%>%filter(miss>0)%>%summarize(meanmissF0 = mean(missF0Rate),meanmissF1 = mean(missF1Rate), meanmissF2 = mean(missF2Rate), meanmissF3 = mean(missF3Rate))
+meanmiss
+
+summary(aov(rate~response_type,data = longform_missRate))
+
+```
+
+
+```{r}
+#Hit
+longform_Hit = gather(basicFeature, response_type, resp_num, hitF0,hitF1,hitF2,hitF3)
+ggplot(longform_Hit, aes(x = response_type, y = resp_num, color = response_type))+
+  geom_boxplot(fill = "white",lwd = 1)+
+  geom_jitter(width=0.2,alpha = 0.5)+
+  labs(title="Hit: features", x = "response type", y = "# of hits")+
+  scale_color_manual(values=Features[c(4,8,12,16)])+
+  plotformat
+
+longform_HitRate = gather(basicFeature, response_type, rate, hitF0Rate,hitF1Rate,hitF2Rate,hitF3Rate)
+ggplot(longform_HitRate, aes(x = response_type, y = rate, color = response_type))+
+  geom_boxplot(fill = "white",lwd = 1)+
+  geom_jitter(width=0.2,alpha = 0.5)+
+  labs(title="Hit: features", x = "response type", y = "hit rate")+
+  scale_color_manual(values=Features[c(4,8,12,16)])+
+  plotformat
+
+meanhit = basicFeature %>%summarize(meanhitF0 = mean(hitF0Rate),meanhitF1 = mean(hitF1Rate), meanhitF2 = mean(hitF2Rate), meanhitF3 = mean(hitF3Rate))
+meanhit
+
+print("with F0")
+summary(aov(rate~response_type,data = longform_HitRate))
+print("without F0")
+summary(aov(rate~response_type,data = filter(longform_HitRate,response_type!="hitF0Rate")))
 
 
 ```
 
 
 ```{r}
-basicFeature = totalData %>% group_by(subID) %>% summarize(num_noresposnes = sum(keys==-1), num_same_resp = sum(keys==1), num_diff_resp = sum(keys==0), num_same_trials =sum(cond==1), num_diff_trials = sum(cond==0), hitF1 = sum(keys==1&cond==1&Fimg_Feature==1), hitF2 = sum(keys==1&cond==1&Fimg_Feature==2),hitF3 = sum(keys==1&cond==1&Fimg_Feature==3),hit = sum(keys==1&cond==1),faF1= sum(keys==1&cond==0&Fimg_Feature==1), faF2= sum(keys==1&cond==0&Fimg_Feature==2),faF3= sum(keys==1&cond==0&Fimg_Feature==3),fa= sum(keys==1&cond==0),cr = sum(keys==0&cond==0),miss = sum(keys==0&cond==1),missF1 = sum(keys==0&cond==1&Fimg_Feature==1),missF2 = sum(keys==0&cond==1&Fimg_Feature==2),missF3 = sum(keys==0&cond==1&Fimg_Feature==3),hitF1Rate = hitF1/3,hitF2Rate = hitF2/3,hitF3Rate = hitF3/3, HitRateFeatures = mean(c(hitF1Rate,hitF2Rate,hitF3Rate)),faF1Rate = faF1/num_diff_trials,faF2Rate = faF2/num_diff_trials,faF3Rate = faF3/num_diff_trials, FaRateFeatures = mean(c(faF1Rate,faF2Rate,faF3Rate)),num_SameFeature_FAswitch_level = sum(keys==1&cond==0 &switchLevel==1&SameFeature==1),SameFeature_FAswitch_level_Rate = sum(keys==1&cond==0 &switchLevel==1&SameFeature==1)/fa)
-basicFeature
+#RT
+hitRT = totalData %>% group_by(subID) %>% filter(keys>0)%>%summarize(num_noresposnes = sum(keys==-1), num_same_resp = sum(keys==1), num_diff_resp = sum(keys==0), num_same_trials =sum(cond==1), num_diff_trials = sum(cond==0), 
+hitF1 = mean(rt[keys==1&cond==1&Fimg_Feature==1]), 
+hitF2 = mean(rt[keys==1&cond==1&Fimg_Feature==2]),
+hitF3 = mean(rt[keys==1&cond==1&Fimg_Feature==3]))
+head(hitRT)
 
-check = totalData %>% group_by(subID) %>% summarize(fa= sum(keys==1&cond==0),SameFeature_FAswitch_level_Rate = sum(keys==1&cond==0 &switchLevel==1&SameFeature==1)/fa, DiffFeature_FAswitch_level_Rate = sum(keys==1&cond==0&switchLevel==1&SameFeature==0)/fa)
+longform_HitRT = gather(hitRT, response_type, RT, hitF1,hitF2,hitF3)
+ggplot(longform_HitRT, aes(x = response_type, y = RT, color = response_type))+
+  geom_boxplot(fill = "white",lwd = 1)+
+  geom_jitter(width=0.2,alpha = 0.5)+
+  labs(title="Hit RT: features", x = "response type", y = "RT(ms)")+
+  scale_color_manual(values=Features[c(4,8,12)])+
+  plotformat
+
+meanhitRT = hitRT %>%summarize(meanhitF1 = mean(hitF1), meanhitF2 = mean(hitF2), meanhitF3 = mean(hitF3))
+meanhitRT
+
+summary(aov(RT~response_type,data = longform_HitRT))
+```
+
+```{r}
+#FA
+longform_FARate = gather(basicFeature, response_type, rate, 
+                         faF0F1Rate,
+                         faF0F2Rate,
+                         faF0F3Rate,
+                         faF0F0Rate,
+                         faF1F0Rate,
+                         faF1F2Rate,
+                         faF1F3Rate,
+                         faF1F1Rate,
+                         faF2F0Rate,
+                         faF2F3Rate,
+                         faF2F1Rate,
+                         faF2F2Rate,
+                         faF3F0Rate,
+                         faF3F1Rate,
+                         faF3F2Rate,
+                         faF3F3Rate)
+ggplot(longform_FARate, aes(x = response_type, y = rate, color = response_type))+
+  geom_boxplot(fill = "white",lwd=1)+
+  geom_jitter(width=0.2,alpha = 0.5)+
+  labs(title="FA: features", x = "response type", y = "miss rate")+
+  scale_color_manual(values=Features)+
+  plotformat
+
+meanfa = basicFeature %>%summarize( meanfaF0F1Rate = mean(faF0F0Rate),
+                                    meanfaF0F2Rate = mean(faF0F2Rate),
+                                    meanfaF0F3Rate = mean(faF0F3Rate),
+                                    meanfaF0F0Rate = mean(faF0F0Rate),
+                                    meanfaF1F0Rate = mean(faF1F0Rate),
+                                    meanfaF1F2 = mean(faF1F2Rate), 
+                                    meanfaF1F3 = mean(faF1F3Rate),
+                                    meanfaF1F1 = mean(faF1F1Rate),
+                                    meanfaF2F0 = mean(faF2F0Rate),
+                                    meanfaF2F1 = mean(faF2F1Rate),
+                                    meanfaF2F3 = mean(faF2F3Rate),
+                                    meanfaF2F2 = mean(faF2F2Rate),
+                                    meanfaF3F0 = mean(faF3F0Rate),
+                                    meanfaF3F1 = mean(faF3F1Rate),
+                                    meanfaF3F2 = mean(faF3F2Rate),
+                                    meanfaF3F3 = mean(faF3F3Rate))
+meanfa
+
+summary(aov(rate~response_type,data = longform_FARate))
+summary(lm(rate~response_type,data = longform_FARate))
+
+```
 
 
-perFeature = totalData %>% group_by(subID) %>% summarize(fa= sum(keys==1&cond==0),SameFeature_FAswitch_level_Rate = sum(keys==1&cond==0 &switchLevel==1&SameFeature==1)/fa, DiffFeature_FAswitch_level_Rate = sum(keys==1&cond==0&switchLevel==1&SameFeature==0)/fa)
+```{r}
+perFeature = totalData %>% group_by(subID) %>% filter(keys>=0)%>%summarize(fa= sum(keys==1&cond==0),switchL = sum(switchLevel==1), SF = sum(SameFeature==1),
+SameFeature_FAswitch_level_Rate = sum(keys==1&cond==0 &switchLevel==1&SameFeature==1)/fa, 
+DiffFeature_FAswitch_level_Rate = sum(keys==1&cond==0&switchLevel==1&SameFeature==0)/fa,
+DiffFeature_FAsame_level_Rate = sum(keys==1&cond==0&switchLevel==0&SameFeature==0)/fa)
 
-longform = gather(perFeature, response_type, rate, SameFeature_FAswitch_level_Rate,DiffFeature_FAswitch_level_Rate)
+longform = gather(perFeature, response_type, rate, SameFeature_FAswitch_level_Rate,DiffFeature_FAswitch_level_Rate,DiffFeature_FAsame_level_Rate)
 longform
 ggplot(longform, aes(x = response_type, y = rate, color = response_type))+
-  geom_jitter(width=0.2,alpha = 0.5)+
-  geom_boxplot(fill = "white")+
+  geom_boxplot(fill = "white",lwd = 1)+
+    geom_jitter(width=0.2,alpha = 0.5)+
+  labs(title="False alarm: within/across levels/features", x = "response type", y = "proportion of all false alarm")+
+  scale_x_discrete(labels=c("SameFeature_FAswitch_level_Rate" = "SameFDiffL", "DiffFeature_FAswitch_level_Rate" = "DiffFDiffL","DiffFeature_FAsame_level_Rate"="DiffFSameL"))+
   plotformat
+
+#statistics
+temp = aov(rate~response_type, data = longform)
+summary(temp)
+```
+
+
+```{r}
+#RT
+perFeatureRT = totalData %>% group_by(subID) %>% filter(keys>=0)%>%summarize(fa= sum(keys==1&cond==0),switchL = sum(switchLevel==1), SF = sum(SameFeature==1),
+SameF_FA_Sl_RT = mean(rt[keys==1&cond==0 &switchLevel==1&SameFeature==1]), 
+DiffF_FA_Sl_RT = mean(rt[keys==1&cond==0&switchLevel==1&SameFeature==0]),
+DiffF_FA_Dl_RT = mean(rt[keys==1&cond==0&switchLevel==0&SameFeature==0]))
+
+longform_perFRT = gather(perFeatureRT, response_type, RT,SameF_FA_Sl_RT,DiffF_FA_Sl_RT,DiffF_FA_Dl_RT )
+longform_perFRT
+ggplot(longform_perFRT, aes(x = response_type, y = RT, color = response_type))+
+  geom_boxplot(fill = "white",lwd = 1)+
+    geom_jitter(width=0.2,alpha = 0.5)+
+  labs(title="FA RT: within/across levels/features", x = "response type", y = "proportion of all false alarm")+
+  scale_x_discrete(labels=c("SameF_FA_Sl_RT" = "SameFDiffL", "DiffF_FA_Sl_RT" = "DiffFDiffL","DiffF_FA_Dl_RT"="DiffFSameL"))+
+  plotformat
+
+#statistics
+temp = aov(RT~response_type, data = longform_perFRT)
+summary(temp)
 
 
 ```
+
+
+
+```{r}
+perFeature_FA = totalData %>% group_by(subID) %>% filter(keys>=0)%>%summarize(fa= sum(keys==1&cond==0),switchL = sum(switchLevel==1), SF = sum(SameFeature==1),
+F0F1_FAswitch_level_Rate = sum(keys==1&cond==0&switchLevel==1&Fimg_Feature==0&Simg_Feature==1)/fa, 
+F0F2_FAswitch_level_Rate = sum(keys==1&cond==0&switchLevel==1&Fimg_Feature==0&Simg_Feature==2)/fa,
+F0F3_FAswitch_level_Rate = sum(keys==1&cond==0&switchLevel==1&Fimg_Feature==0&Simg_Feature==3)/fa,
+F1F0_FAswitch_level_Rate = sum(keys==1&cond==0&switchLevel==1&Fimg_Feature==1&Simg_Feature==0)/fa,
+F1F2_FAswitch_level_Rate = sum(keys==1&cond==0&switchLevel==1&Fimg_Feature==1&Simg_Feature==2)/fa,
+F1F3_FAswitch_level_Rate = sum(keys==1&cond==0&switchLevel==1&Fimg_Feature==1&Simg_Feature==3)/fa,
+F2F0_FAswitch_level_Rate = sum(keys==1&cond==0&switchLevel==1&Fimg_Feature==2&Simg_Feature==0)/fa,
+F2F1_FAswitch_level_Rate = sum(keys==1&cond==0&switchLevel==1&Fimg_Feature==2&Simg_Feature==1)/fa,
+F2F3_FAswitch_level_Rate = sum(keys==1&cond==0&switchLevel==1&Fimg_Feature==2&Simg_Feature==3)/fa,
+F3F0_FAswitch_level_Rate = sum(keys==1&cond==0&switchLevel==1&Fimg_Feature==3&Simg_Feature==0)/fa,
+F3F1_FAswitch_level_Rate = sum(keys==1&cond==0&switchLevel==1&Fimg_Feature==3&Simg_Feature==1)/fa,
+F3F2_FAswitch_level_Rate = sum(keys==1&cond==0&switchLevel==1&Fimg_Feature==3&Simg_Feature==2)/fa,
+
+F0F1_FAsame_level_Rate = sum(keys==1&cond==0&switchLevel==0&Fimg_Feature==0&Simg_Feature==1)/fa,
+F0F2_FAsame_level_Rate = sum(keys==1&cond==0&switchLevel==0&Fimg_Feature==0&Simg_Feature==2)/fa,
+F0F3_FAsame_level_Rate = sum(keys==1&cond==0&switchLevel==0&Fimg_Feature==0&Simg_Feature==3)/fa,
+F1F0_FAsame_level_Rate = sum(keys==1&cond==0&switchLevel==0&Fimg_Feature==1&Simg_Feature==0)/fa,
+F1F2_FAsame_level_Rate = sum(keys==1&cond==0&switchLevel==0&Fimg_Feature==1&Simg_Feature==2)/fa,
+F1F3_FAsame_level_Rate = sum(keys==1&cond==0&switchLevel==0&Fimg_Feature==1&Simg_Feature==3)/fa,
+F2F0_FAsame_level_Rate = sum(keys==1&cond==0&switchLevel==0&Fimg_Feature==2&Simg_Feature==0)/fa,
+F2F1_FAsame_level_Rate = sum(keys==1&cond==0&switchLevel==0&Fimg_Feature==2&Simg_Feature==1)/fa,
+F2F3_FAsame_level_Rate = sum(keys==1&cond==0&switchLevel==0&Fimg_Feature==2&Simg_Feature==3)/fa,
+F3F0_FAsame_level_Rate = sum(keys==1&cond==0&switchLevel==0&Fimg_Feature==3&Simg_Feature==0)/fa,
+F3F1_FAsame_level_Rate = sum(keys==1&cond==0&switchLevel==0&Fimg_Feature==3&Simg_Feature==1)/fa,
+F3F2_FAsame_level_Rate = sum(keys==1&cond==0&switchLevel==0&Fimg_Feature==3&Simg_Feature==2)/fa
+)
+
+longform_breakdown = gather(perFeature_FA, response_type, rate,
+                            F0F1_FAswitch_level_Rate, 
+                            F0F2_FAswitch_level_Rate,
+                            F0F3_FAswitch_level_Rate,
+                            F1F0_FAswitch_level_Rate,
+                            F1F2_FAswitch_level_Rate,
+                            F1F3_FAswitch_level_Rate,
+                            F2F0_FAswitch_level_Rate,
+                            F2F1_FAswitch_level_Rate,
+                            F2F3_FAswitch_level_Rate,
+                            F3F0_FAswitch_level_Rate,
+                            F3F1_FAswitch_level_Rate,
+                            F3F2_FAswitch_level_Rate,
+                            
+                            F0F1_FAsame_level_Rate,
+                            F0F2_FAsame_level_Rate,
+                            F0F3_FAsame_level_Rate,
+                            F1F0_FAsame_level_Rate,
+                            F1F2_FAsame_level_Rate,
+                            F1F3_FAsame_level_Rate,
+                            F2F0_FAsame_level_Rate,
+                            F2F1_FAsame_level_Rate,
+                            F2F3_FAsame_level_Rate,
+                            F3F0_FAsame_level_Rate,
+                            F3F1_FAsame_level_Rate,
+                            F3F2_FAsame_level_Rate)
+ggplot(longform_breakdown, aes(x = response_type, y = rate, color = response_type))+
+  geom_boxplot(fill = "white",lwd = 1)+
+    geom_jitter(width=0.2,alpha = 0.5)+
+  labs(title="False alarm: same/diff levels", x = "response type", y = "proportion of all false alarm")+
+  scale_color_manual(values=Features)+
+  plotformat
+```
+

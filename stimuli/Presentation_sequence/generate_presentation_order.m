@@ -133,12 +133,10 @@ end
 
 for iii = 1:length(check(2).feature)-1
     if check(2).feature(iii)==check(2).feature(iii+1)
-        
-        
+         
         check(2).feature(iii)
         check(2).feature(iii+1)
-        
-        
+
     else
         
     end

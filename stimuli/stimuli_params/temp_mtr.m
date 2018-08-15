@@ -1,5 +1,5 @@
-F1_level = [0 3 6];
-F2_level = [6 3 0];
+F1_level = [1 4 7];
+F2_level = [7 4 1];
 
 F1_level_num = length(F1_level);
 F2_level_num = length(F2_level);
@@ -76,7 +76,7 @@ for ifinal = 1:length(final)
 end
 
 %generate parameter list
-F3 = 0:0.113:6;
+F3 = 1:0.113:7;
 for c = 1:length(candidate)
     newdir = ['uniqueF3_F1F2_3levels_candidate',num2str(c,'%02d')];   
     if ~exist(newdir)
@@ -85,8 +85,7 @@ for c = 1:length(candidate)
     else
         cd(newdir)
     end
-    
-    
+
     paramA = [];
     paramB = [];
     for irow = 1:size(candidate(c).mtrCatA,1)
@@ -162,7 +161,7 @@ for c = 1:length(candidate)
     
     
 %%
-Newparam =[0 6;3 6; 6 6; 0 3; 3 3; 6 3; 0 0; 3 0; 6 0];
+Newparam =[1 7;4 7; 7 7; 1 4; 4 4; 7 4; 1 1; 4 1; 7 1];
 
 Newtemp3A = Newtemp3(1:2:end);
 Newtemp3B = Newtemp3(2:2:end);

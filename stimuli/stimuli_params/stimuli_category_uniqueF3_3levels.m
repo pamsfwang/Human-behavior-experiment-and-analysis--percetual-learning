@@ -4,10 +4,10 @@ fname = 'stimuli_param_uniqueF3.csv';
 fname_train = 'stimuli_param_uniqueF3_train.csv';
 fname_test = 'stimuli_param_uniqueF3_test.csv';
 %specify training features 
-F1 = [0,3,6];
-F2 = [0,3,6];
+F1 = [1,4,7];
+F2 = [1,4,7];
 %F3 = [0,1,3,4];
-F3 = 0:0.16:6;
+F3 = 1:0.17:7;
 F3 = F3(randperm(length(F3))); %randomise the list
 
 %%

@@ -1,5 +1,8 @@
-F1_level = [1 4 7];
-F2_level = [7 4 1];
+%specify levels for each feature
+%three features in total
+F1_level = [1 2 3];
+F2_level = [1 2 3];
+F3 = 1:1:54;
 
 F1_level_num = length(F1_level);
 F2_level_num = length(F2_level);
@@ -8,10 +11,10 @@ mtr = ones(F2_level_num,F1_level_num);
 start = F1_level_num;
 step = [1,2,3];
 
-total = [3,6,9];
+total = [3,6,9];%sum for each level
 
 %F1:
-for currLevel = 1:3
+for currLevel = 1:3%loop through each level -- all possible ways to sum up as total
     if sum(mtr(:,currLevel)) ~= total(currLevel)
         partitions_mtr = partitions(total(currLevel));
         
@@ -61,10 +64,11 @@ for ifinal = 1:length(final)
     for irow = 1:size(cat1prob,1)
         for icol = 1:size(cat1prob,2)
             larger_prob(irow,icol) = max(cat1prob(irow,icol),cat2prob(irow,icol));
+            larger_prob(irow,icol) = larger_prob(irow,icol)*totalnum(irow,icol);
         end
     end
     totalprob = sum(sum(larger_prob));
-    final(ifinal).optimal = totalprob/(size(cat1prob,1)*size(cat1prob,2));
+    final(ifinal).optimal = totalprob/sum(sum(totalnum));
     
     if isequal(final(ifinal).sumrow,total)
         candidate(c).mtrCatA = final(ifinal).mtr;
@@ -74,9 +78,8 @@ for ifinal = 1:length(final)
     end
     clear temp
 end
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %generate parameter list
-F3 = 1:0.113:7;
 for c = 1:length(candidate)
     newdir = ['uniqueF3_F1F2_3levels_candidate',num2str(c,'%02d')];   
     if ~exist(newdir)
@@ -101,9 +104,9 @@ for c = 1:length(candidate)
     %candidate(c).paramA = paramA;
     %candidate(c).paramB = paramB;
     %%feature03
-    Atemp3 = F3(1:3:end);%datasample(F3,size(paramA,1),'Replace',false)';
+    Atemp3 = F3(3:3:end);%datasample(F3,size(paramA,1),'Replace',false)';
     Btemp3 = F3(2:3:end);
-    Newtemp3 = F3(3:3:end);
+    Newtemp3 = F3(1:3:end);
     
     t1 = Atemp3(1:3:end);
     t2 = Btemp3(1:3:end);
@@ -161,7 +164,7 @@ for c = 1:length(candidate)
     
     
 %%
-Newparam =[1 7;4 7; 7 7; 1 4; 4 4; 7 4; 1 1; 4 1; 7 1];
+Newparam =[1 3;2 3; 3 3; 1 3; 3 3; 3 2; 1 1; 2 1; 3 1];
 
 Newtemp3A = Newtemp3(1:2:end);
 Newtemp3B = Newtemp3(2:2:end);

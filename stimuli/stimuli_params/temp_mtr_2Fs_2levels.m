@@ -2,22 +2,19 @@
 %three features in total
 clear all
 
-
-total = [5,9];
+total = [2,8];
 F1_level = [1 2];
 F2_level = [1 2];
 newname = ['uniqueF2_F1_2levels_',num2str(total(1)),num2str(total(2)),'candidate'];
-F3Set = 4;%2 train cat; 2 test cat
+F3Set = 4;%2 train cat; 2 test cat;
 
 F1_level_num = length(F1_level);
 F2_level_num = length(F2_level);
 
 mtr = zeros(F2_level_num,F1_level_num);
-start = F1_level_num;
-step = [1,2,3];
 
 %%%
-F3 = 1:(sum(total)*4);
+F3 = 1:(sum(total)*7);
 for ii = 1:F3Set
     ff3(ii).t = F3(ii:F3Set:F3(end));
     ff3(ii).t1 = ff3(ii).t(1:F3Set:end);

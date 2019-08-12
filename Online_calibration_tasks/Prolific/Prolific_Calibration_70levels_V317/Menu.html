@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="stylesheet.css" type="text/css" charset="utf-8">
+<script type="text/javascript" src="jquery-1.7.1.js"></script>
+<!--<script type="text/javascript" src="DatabaseList.js"></script>-->
+<script type="text/javascript">
+/*------------------------define functions---------------------------------------*/
+function basicPopup(url)
+{
+	popupWindow = window.open(url, "popupWindow");
+}
+
+function gup(name, tmpURL)
+{
+	var regexS = "[\\?&]"+name+"=([^&#]*)";
+	var regex = new RegExp(regexS);
+	var results = regex.exec(tmpURL);
+	if (results == null)
+	{
+		return "";
+	}else{
+		return results[1];
+	}
+}
+/*---img order functions---*/
+function shuffle(o){
+  for(var j,x,i=o.length;i;j=Math.floor(Math.random()*i),x = o[--i],o[i]=o[j],o[j]=x);
+  return o;
+}
+
+function degree_SD_order(array,times){
+	var it;
+    var forder = []
+		for (it = 0; it< times; it++){
+		// step01: generate all combinations (pairs) of images
+			var results = [];
+			var samepairs = [];
+			var totalSame = [];
+			//all combinations of images (as pairs)
+			for (let i = 1; i < array.length ; i++) {
+				results.push([1, array[i]]);
+			}
+			//all combinations of same images (as pairs)
+			for (let i = 0; i < array.length ; i++) {
+			samepairs.push([array[i], array[i]]);
+			}
+
+            completepairs = samepairs.concat(results)
+			//randomize the orders
+			temp = shuffle(shuffle(completepairs))
+	
+			// step02: collapse the pairs into an array (switch which one is the first at random)
+			var finalorder =[]
+			for (ii = 0; ii < temp.length; ii++) {
+				tempNum = Math.floor(Math.random() * 2);
+					if (tempNum == 0){
+						finalorder.push(temp[ii][0])
+						finalorder.push(temp[ii][1])
+					}else{
+						finalorder.push(temp[ii][1])
+						finalorder.push(temp[ii][0])
+					}
+			} 
+			 // step03: concatinate 
+			if (it==0){
+			forder=finalorder
+			}else{
+			forder = forder.concat(finalorder)
+			}
+    }
+    return forder 
+}
+
+/*---------------------------------------------------------------*/
+var curStage = 0;
+var task_assigned = 1;/*Math.floor(Math.random() * 2);*/
+var isTestMode = 0; /*change to 1 when publish it on MTurk*/
+
+/*---------------------------------------------------------------*/
+var RunNum = 3;
+var ImgNum = 6;
+var Imgarray = [1,2,3,4,5,6];
+
+/*var ImgNumpractice = 3;
+var parcticeArray = [1,2,3];*/
+/*var practiceOrder = order(parcticeArray,1);*/
+
+/*Order First Time*/
+var ImgOrder = degree_SD_order(Imgarray,21);
+console.log(ImgOrder)
+var ImgStep = ImgOrder.length/RunNum;
+console.log(ImgStep)
+
+var ImgNumRun01 = ImgOrder.slice(0,ImgStep);
+
+var Run02IndStart = ImgStep;
+var Run02IndEnd = Run02IndStart+ImgStep;
+var ImgNumRun02 = ImgOrder.slice(Run02IndStart,Run02IndEnd);
+	
+var Run03IndStart = Run02IndEnd;
+var Run03IndEnd = Run03IndStart+ImgStep;
+var ImgNumRun03 = ImgOrder.slice(Run03IndStart,Run03IndEnd);
+
+var feature = Math.floor((Math.random() * 2) + 1)+1;/*Math.floor((Math.random() * 3) + 1)*/
+	
+	switch(feature)
+	{
+		case 1:
+		var fileName = [
+				"V317feature01_viewpoint01_01.jpg",
+				"V317feature01_viewpoint01_02.jpg",
+				"V317feature01_viewpoint01_03.jpg",
+				"V317feature01_viewpoint01_04.jpg",
+				"V317feature01_viewpoint01_05.jpg",
+				"V317feature01_viewpoint01_06.jpg"];
+		break;
+		
+		case 2:
+		var fileName = [
+				"V317feature02_viewpoint01_01.jpg",
+				"V317feature02_viewpoint01_02.jpg",
+				"V317feature02_viewpoint01_03.jpg",
+				"V317feature02_viewpoint01_04.jpg",
+				"V317feature02_viewpoint01_05.jpg",
+				"V317feature02_viewpoint01_06.jpg"];
+		break;
+		
+		case 3:
+		var fileName = [
+				"V317feature03_viewpoint01_01.jpg",
+				"V317feature03_viewpoint01_02.jpg",
+				"V317feature03_viewpoint01_03.jpg",
+				"V317feature03_viewpoint01_04.jpg",
+				"V317feature03_viewpoint01_05.jpg",
+				"V317feature03_viewpoint01_06.jpg"];
+		break;
+	}
+/*---------------------------------------------------------------*/
+function updateMainMenu(expStage)
+{
+	curStage = expStage;
+	switch(expStage)
+	{   case 0:
+		  $("#instruction").text("Please click the button to read a consent form before continuing to the main study.");
+	      $("#instruction").show();
+		  $("#myButton").show();
+		break;
+		
+		case 1:
+			$("#instruction").text("Please click the button to fill out a short demographic survey");
+			$("#instruction").show();
+			$("#myButton").show();
+			break;
+		case 2:
+			curStage = expStage;
+			$("#instruction").text("Please click the button to start the practice (~0.5 min)");
+			break;
+		case 3:
+			curStage = expStage;
+			$("#instruction").text("Please click the button to start the first run (~12 mins)");
+			break;
+		case 4:
+			curStage = expStage;
+			$("#instruction").text("You have completed the first run. Please click the button to start the second run (~12 mins)");
+			break;
+		case 5:
+			curStage = expStage;
+			$("#instruction").text("You have completed the second run. Please click the button to start the final run (~12 mins)");
+			break;
+		case 6:
+			curStage = expStage;
+			$("#instruction").text("Please click the button to fill out a short post-task survey");
+			break;
+	    case 7:
+			curStage = expStage;
+			$("#instruction").hide();
+			$("#myButton").hide();
+			$("#sona_form").show();
+			break;
+	}
+}
+
+$(document).ready(function(){
+	$("#sona_form").hide();	
+	$("#myButton").click(function(){
+		switch(curStage)
+		{   case 0:
+				basicPopup("Consent.html");
+				break;
+			case 1:
+				basicPopup("Demographics.html");
+				break;
+			case 2:
+				window.open("SameDifferentViewing.html", "popupWindow");
+				break;
+			case 3:
+			    window.open("SameDifferentRun01.html", "popupWindow");
+				/*basicPopup("SameDifferentRun01.html");*/
+				break;
+		    case 4:
+		    	window.open("SameDifferentRun02.html", "popupWindow");
+				/*basicPopup("SameDifferentRun02.html");*/
+				break;
+		    case 5:
+		    	window.open("SameDifferentRun03.html", "popupWindow");
+				/*basicPopup("SameDifferentRun03.html");*/
+				break;
+		    case 6:
+		    	basicPopup("Post_task_survey.html");
+				break;
+		    
+		}
+	});
+	updateMainMenu(0);
+	
+});
+</script>
+</head>
+<body>
+	<table>
+		<tr>
+			<td>
+			<p style="font-family: arial; font-size: 25px">Please keep this window open until you finish the entire study.</p>
+			<p style="font-family: arial; font-size: 25px">For the main task, there will be one practice run (~0.5 min) and three real runs (~12 mins/run). </p>
+			<p style="font-family: arial; font-size: 25px">Expect about 45 minutes to finish the entire study (surveys + main task). </p>
+				<br>
+				<p id="instruction" style="font-family: arial; font-size: 25px">Please click the button to start</p>
+				<button id="myButton" style="font-family: arial; font-size: 30px">Click Here</button>
+				<form id="sona_form" method="POST" action="/~shaofang/cgi-bin/DataHandler_ProlificCrossF.php" enctype="multipart/form-data"> <!--change action path to your own DataHandler.php-->
+					<input type="hidden" id="demographics" name="demographics" value=""> <!--this is for saving demo info (check demo.html)-->
+					<input type="hidden" id="SameDifferentViewing" name="SameDifferentViewing" value="">
+					<input type="hidden" id="SameDifferentRun01" name="SameDifferentRun01" value=""><!--this is for saving SameDifferent (check SameDifferent.html)-->
+					<input type="hidden" id="SameDifferentRun02" name="SameDifferentRun02" value="">
+					<input type="hidden" id="SameDifferentRun03" name="SameDifferentRun03" value="">
+					<input type="hidden" id="PostSurvey" name="PostSurvey" value="">
+					<input type="hidden" id="ExpName" name="ExpName" value= "Prolific70levels_V317_2500"> <!--name of the folder of the data on your server -->
+					<p style="font-family: Arial; color: black; font-size: 30px">You have completed the entire study. Please click the button to upload the data. </p>
+					<input id="submitButton" type="submit" name="Finish" value="Submit" style="font-family: arial; font-size: 30px">
+				</form>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

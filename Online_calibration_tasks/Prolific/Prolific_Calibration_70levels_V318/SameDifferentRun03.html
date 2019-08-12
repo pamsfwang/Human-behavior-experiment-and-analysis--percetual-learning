@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- style for full screen -->
+<style>
+/* Chrome, Safari and Opera syntax */
+:-webkit-full-screen {
+  background-color: yellow;
+}
+
+/* Firefox syntax */
+:-moz-full-screen {
+  background-color: yellow;
+}
+
+/* IE/Edge syntax */
+:-ms-fullscreen {
+  background-color: yellow;
+}
+
+/* Standard syntax */
+:fullscreen {
+  background-color: yellow;
+}
+
+/* Style the button */
+button {
+  padding: 20px;
+  font-size: 20px;
+}
+</style>
+<!--  -->
+
+
+<!-- import library and style sheet -->
+<link rel="stylesheet" href="stylesheet.css" type="text/css" charset="utf-8">
+<script type="text/javascript" src="jquery-1.7.1.js"></script>
+<script type="text/javascript">
+
+/* define function */
+/*full screen functions*/
+var elem = document.documentElement;
+function openFullscreen() {
+  if (elem.requestFullscreen) {
+	elem.requestFullscreen();
+  } else if (elem.mozRequestFullScreen) { /* Firefox */
+	elem.mozRequestFullScreen();
+  } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+	elem.webkitRequestFullscreen();
+  } else if (elem.msRequestFullscreen) { /* IE/Edge */
+	elem.msRequestFullscreen();
+  }
+}
+
+function closeFullscreen() {
+  if (document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if (document.mozCancelFullScreen) {
+    document.mozCancelFullScreen();
+  } else if (document.webkitExitFullscreen) {
+    document.webkitExitFullscreen();
+  } else if (document.msExitFullscreen) {
+    document.msExitFullscreen();
+  }
+}
+
+
+/*----------------------------------------------------------*/
+/*start coding the task*/
+$(document).ready(function(){
+    var starttime = new Date();
+    /* define variables*/
+    var ImgOrder = window.opener.ImgNumRun03;
+	console.log(ImgOrder)
+	var TrialNum = (ImgOrder.length+ImgOrder.length/2)*2+1;
+	var word_line1 = ["Please press keys"];
+	var word_line2 = ["Same (S) or Different (D) "];
+	var feature = window.opener.feature;
+	
+	var ImgNum = window.opener.ImgNum;
+	var imgs = new Array(ImgNum);
+	var imgCount = 0;
+	
+	var i = 0;
+	var tempImgCount = 0;
+	var isInRuntrial = 0;
+	var data = [['']];
+	var sOnset = null;
+	var logcount = 0;
+	var fileName = window.opener.fileName;
+	
+	/*----------------------------------------------------------*/
+    var canvas = document.getElementById("myCanvas"); /*canvas ID
+	in body */
+	var ctx = canvas.getContext("2d");
+    
+    /*Load Images----------------------------------------------------------*/
+	function loadImage()
+	{
+		if (imgCount < ImgNum)
+		{
+			imgs[imgCount] = new Image();
+			imgs[imgCount].src=  fileName[imgCount];
+			imgs[imgCount].onload=loadImage;
+			imgCount++;
+		} else{  
+			StartTask(); /* after loading all the images, start running the experiment */
+		}
+	}
+                  
+	/*Start Tasks----------------------------------------------------------*/
+	function StartTask(){
+		ctx.font="20px Arial";
+		ctx.fillStyle="black";
+		ctx.textBaseline="middle";
+		ctx.textAlign="center";
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.fillText("This is the final run. You will see a series of objects grouped in pairs." , canvas.width*0.5, 30);
+		ctx.fillText("Each object in the pair will be presented one at a time (2.5 seconds) successively.", canvas.width*0.5, 70);
+		ctx.fillText("You will be asked to indicate whether the two objects in a pair are different or the same.", canvas.width*0.5, 110);
+		ctx.fillText("You will see 'Same (S) or Different (D)' on the screen. While the question is on the screen...", canvas.width*0.5, 150);
+		ctx.fillText("Please press key S to indicate they are the same and press key D to indicate they are different.", canvas.width*0.5, 190);
+		ctx.fillText("You will have 2 seconds to respond. You will receive correct/incorrect feedback after each response.", canvas.width*0.5, 230);
+	    $("#startButton").show();	
+	}
+	
+	$("#startButton").click(function() {
+		$("#startButton").hide();
+		runTrial()
+	});
+				
+	function runTrial(){
+	openFullscreen()
+	isInRuntrial = 0; /*disable key press*/
+	if (i < TrialNum){
+			if ((i % 2)== 0 && (i!=0)){   
+					if ((i % 6)==0){
+							isInRuntrial = 1; /*enable key press*/
+							sOnset = new Date();
+							ctx.clearRect(0, 0, canvas.width, canvas.height); /*clear your canvas*/
+							ctx.font="30px Arial";
+							ctx.fillStyle="black";
+							ctx.textBaseline="Top";
+							ctx.textAlign="center";
+							/*ctx.fillText(word_line1, canvas.width*0.5, canvas.height *0.4);*/
+							ctx.fillText(word_line2, canvas.width*0.5, canvas.height *0.5);
+							logcount++;
+							i++;
+							data[logcount] = ["R:", -1, "z", -1,0,ImgOrder[tempImgCount-2],ImgOrder[tempImgCount-1],feature,"R"];
+							setTimeout(runTrial, 2000);
+						 } else{
+							ctx.clearRect(0, 0, canvas.width, canvas.height); /*clear your canvas*/
+							ctx.drawImage(imgs[ImgOrder[tempImgCount]-1],50,0,800,600); /*dx, dy, dWidth, dHeight*/
+							i++;
+							setTimeout(runTrial, 2500);
+							console.log(imgs[ImgOrder[tempImgCount]-1].src)
+							console.log(ImgOrder[tempImgCount])
+							tempImgCount += 1;
+							}
+					} else{
+					ctx.clearRect(0, 0, canvas.width, canvas.height); /*clear your canvas*/
+					ctx.font="60px Arial";
+					ctx.fillStyle="black";
+					ctx.textBaseline="Top";
+					ctx.textAlign="center";
+					ctx.fillText("+", canvas.width*0.5, canvas.height *0.5);
+					i++;
+					setTimeout(runTrial, 800);}
+				} else{
+				ExpComplete()
+				}
+	}
+	
+	function ExpComplete(){
+	if (i==TrialNum){
+	closeFullscreen()
+		var endtime = new Date()
+		console.log(endtime-starttime)
+		ctx.clearRect(0, 0, canvas.width, canvas.height); /*clear your canvas*/
+		ctx.font="30px Arial";
+		ctx.fillStyle="black";
+		ctx.textBaseline="Top";
+		ctx.textAlign="center";
+		ctx.fillText("You have completed the final run.", canvas.width*0.5, canvas.height *0.4);
+		ctx.fillText("It will automatically move on to the next page.", canvas.width*0.5, canvas.height *0.4+40);
+		/*For saving out data */
+		i++;
+		setTimeout(ExpComplete, 5000);
+		}else{
+		SaveAndClose()}
+	}
+	
+	function SaveAndClose(){
+	$("#SameDifferentRun03", opener.window.document).val(data.join(";")); /*check Menu.html -- create an inden input for this*/
+	opener.updateMainMenu(6);/*go back to main menu -- check Menu.html*/
+	JavaScript:window.close();/*close windows tap*/	
+	}
+	
+		$("body").keypress(function(event){
+		if (isInRuntrial==1){
+			var key = String.fromCharCode(event.which);
+			d1 = new Date();
+			var ans = -1;
+			switch(key[0]){
+				case 's':
+					ans = 1;
+					break;
+				case 'd':
+					ans = 0;
+					break;}
+			console.log(ans)
+			console.log(d1.getTime()-sOnset.getTime())
+			console.log(data)
+					
+			if (ans==1 && ImgOrder[tempImgCount-2]==ImgOrder[tempImgCount-1]){
+					ctx.font="30px Arial";
+					ctx.fillStyle="green";
+					ctx.fillText("Correct!", canvas.width*0.5, canvas.height *0.6);
+					var accuracy = 1;
+				} else if (ans ==0 && ImgOrder[tempImgCount-2]!=ImgOrder[tempImgCount-1]){
+					ctx.font="30px Arial";
+					ctx.fillStyle="green";
+					ctx.fillText("Correct!", canvas.width*0.5, canvas.height *0.6);
+					var accuracy = 1;
+				}else{
+					ctx.font="30px Arial";
+					ctx.fillStyle="red";
+					ctx.fillText("Incorrect!", canvas.width*0.5, canvas.height *0.6);
+					var accuracy = 0;
+			}
+			data[logcount] = ["R:", ans, key, accuracy,d1.getTime() - sOnset.getTime(),ImgOrder[tempImgCount-2],ImgOrder[tempImgCount-1],feature,"R"];
+			
+			
+			}else{
+
+			}
+			/*logCount++;*/
+		});
+
+	loadImage();
+});
+
+</script>
+
+</head>
+<body>
+<table>
+	<tr>
+		<td>
+			<canvas id="myCanvas" width="900" height="600"></canvas>
+			<p><button id="startButton" style="font-family: arial; color: black; font-size: 24px"> Click to start</p>
+		</td>
+	</tr>
+</table>
+</body>
+
+</html>

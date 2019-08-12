@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="stylesheet.css" type="text/css" charset="utf-8">
+<script type="text/javascript" src="jquery-1.7.1.js"></script>
+<script type="text/javascript" src="DatabaseList.js"></script>
+<script type="text/javascript">
+var curStage = 0;
+var task_assigned = 1;/*Math.floor(Math.random() * 2);*/
+var isTestMode = 0; /*change to 1 when publish it on MTurk*/
+
+function basicPopup(url)
+{
+	popupWindow = window.open(url, "popupWindow");
+}
+
+function gup(name, tmpURL)
+{
+	var regexS = "[\\?&]"+name+"=([^&#]*)";
+	var regex = new RegExp(regexS);
+	var results = regex.exec(tmpURL);
+	if (results == null)
+	{
+		return "";
+	}else{
+		return results[1];
+	}
+}
+
+function updateMainMenu(expStage)
+{
+	curStage = expStage;
+	switch(expStage)
+	{
+	
+		case 0:
+			$("#instruction").text("Please click the button to fill out a short demographic survey");
+			$("#instruction").show();
+			$("#myButton").show();
+			break;
+		case 1:
+			curStage = expStage;
+			$("#instruction").text("Please click the button to start the main task");
+			break;
+		case 2:
+			curStage = expStage;
+			$("#instruction").hide();
+			$("#myButton").hide();
+			$("#mturk_form").show();
+			break;
+	}
+}
+
+$(document).ready(function(){
+	$("#mturk_form").hide();
+	
+	var flag = isTestMode;
+	
+	if (flag > 0)
+	{
+		document.getElementById("assignmentId").value=gup("assignmentId", document.referrer);
+		document.getElementById("hitId").value=gup("hitId", document.referrer);
+		document.getElementById("workerId").value=gup("workerId", document.referrer);
+		if (document.getElementById("assignmentId").value == "" || document.getElementById("assignmentId").value=="ASSIGNMENT_ID_NOT_AVAILABLE")
+		{
+			flag = 1;
+		}else{
+			flag = 0;
+		}
+	}
+	
+	
+		if (flag > 0)
+		{
+			$("#instruction").text("Please accept HIT first");
+			$("#myButton").hide();
+		}else{
+			$("#myButton").click(function(){
+				switch(curStage)
+				{
+					case 0:
+
+						basicPopup("Demographics.html");
+						break;
+					case 1:
+						if (task_assigned == 0)
+						{
+							basicPopup("Ratings.html");
+                    }else{
+							basicPopup("SameDifferent.html");
+                                 						}
+						
+						break;
+				}
+			});
+			updateMainMenu(0);
+		}
+
+	
+});
+</script>
+</head>
+<body>
+	<table>
+		<tr>
+			<td>
+			<p style="font-family: arial; font-size: 30px">Please keep this window open until you submit this HIT.</p>
+			<p style="font-family: arial; font-size: 30px"> Expect about 5 minutes to finish this HIT. </p>
+				<br>
+				<p id="instruction" style="font-family: arial; font-size: 30px">Please click the button to start</p>
+				<button id="myButton" style="font-family: arial; font-size: 30px">Click Here</button>
+				<form id="mturk_form" method="POST" action="/~shaofang/cgi-bin/DataHandler.php" enctype="multipart/form-data"> <!--change action path to your own DataHandler.php-->
+					<input type="hidden" id="assignmentId" name="assignmentId" value="">
+					<input type="hidden" id="hitId" name="hitId" value="">
+					<input type="hidden" id="workerId" name="workerId" value="">
+					<input type="hidden" id="demographics" name="demographics" value=""> <!--this is for saving demo info (check demo.html)-->
+					<input type="hidden" id="Ratings" name="Ratings" value=""><!--this is for saving ratings (check Ratings.html)-->
+					<input type="hidden" id="SameDifferent" name="SameDifferent" value=""><!--this is for saving SameDifferent (check SameDifferent.html)-->
+					<input type="hidden" id="ExpName" name="ExpName" value= "Calibration_001"> <!--name of the folder of the data on your server -->
+					<p style="font-family: Arial; color: black; font-size: 24px">You have completed the task. Click the button to receive a confirmation code on the new page. </p>
+					<p style="font-family: Arial; color: black; font-size: 24px"> Please enter the confirmation code on the MTurk site to submit your HIT.</p>
+					<input id="submitButton" type="submit" name="Finish" value="Submit">
+				</form>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

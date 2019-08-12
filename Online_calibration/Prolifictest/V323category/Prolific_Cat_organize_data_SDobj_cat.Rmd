@@ -1,0 +1,311 @@
+---
+title: 'V323 category data organization'
+output:
+github_document:
+toc: yes
+toc_float: yes
+---
+
+```{r, message=FALSE, warning=FALSE, include=FALSE}
+library(dplyr)
+library(plyr)
+library(tidyr)
+library(ggplot2)
+library(stringr)
+```
+
+
+```{r}
+time = 'SDobj_cat';
+calibration_version = "V323"
+dataPath = paste0('/Volumes/Macintosh HD/Users/Pam_sf_wang/Documents/Perceptual_learning_project/Calibration/Prolificdata/70levels_',calibration_version,'_',time,'/');
+
+#SameDifferentViewing_fnames = list.files(path = dataPath,pattern = "SameDifferentViewing")
+
+Run01_fnames = list.files(path = dataPath,pattern = "CatRun01")
+Run02_fnames = list.files(path = dataPath,pattern = "CatRun02")
+Run03_fnames = list.files(path = dataPath,pattern = "CatRun03")
+Run04_fnames = list.files(path = dataPath,pattern = "CatRun04")
+
+Demo_fnames = list.files(path = dataPath,pattern = "demographics")
+Post_fnames = list.files(path = dataPath,pattern = "postsurvey")
+
+data_new_fname = paste0("Prolific_Cat_",calibration_version,"_",time)
+demographic_new_fname = paste0("Prolific_Cat_",calibration_version,"_demographic",time)
+postsurvey_new_fname = paste0("Prolific_Cat_",calibration_version,"_postsurvey",time)
+```
+
+## Load data
+```{r}
+##specify variables
+#for behavior information
+totalData = data.frame()
+runFnamepattern = "CatRun01"
+ic = 1;
+#for demographic information
+gender = data.frame()
+age = data.frame()
+ethnicity= data.frame()
+race = data.frame()
+subID = data.frame()
+
+#for post survey
+Postsurvey=data.frame()
+postsubID = data.frame()
+confirmationCode = data.frame()
+ProlificID=data.frame()
+
+##Getting data from online text output
+for (ifiles in 1:length(Run01_fnames)){
+  ##Getting post-test data    
+  for (ifilesDe in 1:length(Post_fnames)){
+    if (unlist(strsplit(Run01_fnames[ifiles],runFnamepattern))[2]==unlist(strsplit(Post_fnames[ifilesDe],"postsurvey"))[2]){   
+      tempPostFile = read.table(paste0(dataPath,Post_fnames[ifilesDe]),header = F)
+      ###separate feedback and prolific ID
+      if (dim(tempPostFile)[2]>1){
+        tempPostFile$y = apply( tempPostFile[,] , 1 , paste , collapse = "" )
+        Post_info = unlist(strsplit(as.character(tempPostFile$y), ";"))
+      }else{
+        Post_info = unlist(strsplit(as.character(tempPostFile$V1), ";"))
+      }
+      tempSubID = substr(unlist(Post_info[2]),18,24) #use the last few letters of their prolific ID as subID
+      
+      Postsurvey[ic,1]=unlist(Post_info[1])
+      ProlificID[ic,1]=unlist(Post_info[2])
+      postsubID[ic,1]=tempSubID
+      confirmationCode[ic,1]=unlist(strsplit(Run01_fnames[ifiles],runFnamepattern ))[2]
+    }#if 
+  }#for
+  
+  #Getting demo data
+  for (ifilesDe in 1:length(Demo_fnames)){
+    if (unlist(strsplit(Run01_fnames[ifiles],runFnamepattern))[2]==unlist(strsplit(Demo_fnames[ifilesDe],"demographics"))[2]){  
+      tempDemoFile = read.table(paste0(dataPath,Demo_fnames[ifilesDe]),header = F)
+      Demo_info = unlist(strsplit(as.character(tempDemoFile$V1), ";"))
+      gender[ic,1] = unlist(Demo_info[1])
+      age[ic,1]=unlist(Demo_info[2])
+      ethnicity[ic,1]=unlist(Demo_info[3])
+      race[ic,1]=unlist(Demo_info[4])
+      
+      subID[ic,1]=tempSubID
+    }# if
+  }#for
+  ic = ic+1;
+  ##############
+  tempFile = read.table(paste0(dataPath,Run01_fnames[ifiles]),header = F)
+  Trials = unlist(strsplit(as.character(tempFile$V1), ";"))
+  
+  feature_index = data.frame()
+  keyNum = data.frame()
+  accuracy = data.frame()
+  RT = data.frame()
+  Fir_img = data.frame()
+  Sec_img = data.frame()
+  for (i in 1:length(Trials)){
+    temp = unlist(strsplit(Trials[i],","));
+    keyNum = rbind(keyNum,as.numeric(temp[2]))
+    accuracy = rbind(accuracy,as.numeric(temp[4]))
+    RT = rbind(RT,as.numeric(temp[5]))
+    if (i==2){
+      Fir_img = rbind(Fir_img,0)
+    }else{Fir_img = rbind(Fir_img,as.numeric(temp[6]))}
+    
+    Sec_img = rbind(Sec_img,as.numeric(temp[7]))
+    feature_index = rbind(feature_index,as.numeric(temp[8]))
+  }
+  data = cbind(keyNum,accuracy,RT, Fir_img,Sec_img,feature_index)
+  colnames(data) = c("keys","accuracy", "rt", "Fimg","Simg","feature_index")
+  data = data[-1,]
+  data$subID = tempSubID;
+  data$trialNum = 1:dim(data)[1];
+  data$run = 1;
+  
+  totalData = rbind(totalData,data)
+  #}else{}
+}#for
+
+```
+
+####Save demographic and post test .csv
+```{r}
+#demographic information
+demographic_information = cbind(gender,age,ethnicity,race,subID)
+colnames(demographic_information) = c("Gender","Age","Ethnicity","Race","SubID")
+demographic_information$Age = as.numeric(demographic_information$Age)
+write.csv(demographic_information, file = paste0(demographic_new_fname,".csv"))
+#save post test survey
+postsurvey = cbind(Postsurvey,ProlificID,postsubID,confirmationCode)
+colnames(postsurvey) = c("post_surve","prolificID","SubID","confirm_code")
+write.csv(postsurvey, file = paste0(postsurvey_new_fname,".csv"))
+
+```
+
+
+###Run02
+```{r}
+runNum = 2;
+runFnamepattern = "CatRun02"
+dataRun02 = data.frame()
+##Getting data from online text output
+for (ifiles in 1:length(Run02_fnames)){
+  for (ifilesDe in 1:length(Post_fnames)){
+    if (unlist(strsplit(Run02_fnames[ifiles],runFnamepattern))[2]==unlist(strsplit(Post_fnames[ifilesDe],"postsurvey"))[2]){
+      tempPostFile = read.table(paste0(dataPath,Post_fnames[ifilesDe]),header = F)
+      ###separate feedback and prolific ID
+      if (dim(tempPostFile)[2]>1){
+        tempPostFile$y = apply( tempPostFile[,] , 1 , paste , collapse = "" )
+        Post_info = unlist(strsplit(as.character(tempPostFile$y), ";"))
+      }else{
+        Post_info = unlist(strsplit(as.character(tempPostFile$V1), ";"))
+      }
+      tempSubID = substr(unlist(Post_info[2]),18,24)
+    }#if
+  }#for
+  
+  
+  ##########
+  tempFile = read.table(paste0(dataPath,Run02_fnames[ifiles]),header = F)
+  Trials = unlist(strsplit(as.character(tempFile$V1), ";"))
+  
+  #if (length(Trials)>10){
+  feature_index = data.frame()
+  keyNum = data.frame()
+  accuracy = data.frame()
+  RT = data.frame()
+  Fir_img = data.frame()
+  Sec_img = data.frame()
+  for (i in 1:length(Trials)){
+    temp = unlist(strsplit(Trials[i],","));
+    keyNum = rbind(keyNum,as.numeric(temp[2]))
+    accuracy = rbind(accuracy,as.numeric(temp[4]))
+    RT = rbind(RT,as.numeric(temp[5]))
+    if (i==2){
+      Fir_img = rbind(Fir_img,0)
+    }else{Fir_img = rbind(Fir_img,as.numeric(temp[6]))}
+    
+    Sec_img = rbind(Sec_img,as.numeric(temp[7]))
+    feature_index = rbind(feature_index,as.numeric(temp[8]))
+  }
+  data = cbind(keyNum,accuracy,RT, Fir_img,Sec_img,feature_index)
+  colnames(data) = c("keys","accuracy", "rt", "Fimg","Simg","feature_index")
+  data = data[-1,]
+  data$subID = tempSubID;
+  data$trialNum = 1:dim(data)[1];
+  data$run = runNum ;
+  
+  totalData = rbind(totalData,data)
+  #}else{}
+}#for
+
+```
+
+###Run03
+```{r}
+runNum = 3;
+##Getting data from online text output
+for (ifiles in 1:length(Run03_fnames)){
+  for (ifilesDe in 1:length(Post_fnames)){
+    if (unlist(strsplit(Run03_fnames[ifiles],"CatRun03"))[2]==unlist(strsplit(Post_fnames[ifilesDe],"postsurvey"))[2]){
+      tempPostFile = read.table(paste0(dataPath,Post_fnames[ifilesDe]),header = F)
+      ###separate feedback and prolific ID
+      if (dim(tempPostFile)[2]>1){
+        tempPostFile$y = apply( tempPostFile[,] , 1 , paste , collapse = "" )
+        Post_info = unlist(strsplit(as.character(tempPostFile$y), ";"))
+      }else{
+        Post_info = unlist(strsplit(as.character(tempPostFile$V1), ";"))
+      }
+      tempSubID = substr(unlist(Post_info[2]),18,24)
+    }}
+  #####
+  tempFile = read.table(paste0(dataPath,Run03_fnames[ifiles]),header = F)
+  Trials = unlist(strsplit(as.character(tempFile$V1), ";"))
+  
+  feature_index = data.frame()
+  keyNum = data.frame()
+  accuracy = data.frame()
+  RT = data.frame()
+  Fir_img = data.frame()
+  Sec_img = data.frame()
+  for (i in 1:length(Trials)){
+    
+    temp = unlist(strsplit(Trials[i],","));
+    keyNum = rbind(keyNum,as.numeric(temp[2]))
+    accuracy = rbind(accuracy,as.numeric(temp[4]))
+    RT = rbind(RT,as.numeric(temp[5]))
+    if (i==2){
+      Fir_img = rbind(Fir_img,0)
+    }else{Fir_img = rbind(Fir_img,as.numeric(temp[6]))}
+    
+    Sec_img = rbind(Sec_img,0)
+    feature_index = rbind(feature_index,as.numeric(temp[7]))
+  }
+  data = cbind(keyNum,accuracy,RT, Fir_img,Sec_img,feature_index)
+  colnames(data) = c("keys","accuracy", "rt", "Fimg","Simg","feature_index")
+  data = data[-1,]
+  data$subID = tempSubID;
+  data$trialNum = 1:dim(data)[1];
+  data$run = runNum ;
+  
+  totalData = rbind(totalData,data)
+  #}else{}
+}#for
+
+```
+
+###Run04
+
+```{r}
+runNum = 4;
+##Getting data from online text output
+for (ifiles in 1:length(Run04_fnames)){
+  for (ifilesDe in 1:length(Post_fnames)){
+    if (unlist(strsplit(Run04_fnames[ifiles],"CatRun04"))[2]==unlist(strsplit(Post_fnames[ifilesDe],"postsurvey"))[2]){
+      tempPostFile = read.table(paste0(dataPath,Post_fnames[ifilesDe]),header = F)
+      ###separate feedback and prolific ID
+      if (dim(tempPostFile)[2]>1){
+        tempPostFile$y = apply( tempPostFile[,] , 1 , paste , collapse = "" )
+        Post_info = unlist(strsplit(as.character(tempPostFile$y), ";"))
+      }else{
+        Post_info = unlist(strsplit(as.character(tempPostFile$V1), ";"))
+      }
+      tempSubID = substr(unlist(Post_info[2]),18,24)
+    }}
+  #####
+  tempFile = read.table(paste0(dataPath,Run04_fnames[ifiles]),header = F)
+  Trials = unlist(strsplit(as.character(tempFile$V1), ";"))
+  
+  feature_index = data.frame()
+  keyNum = data.frame()
+  accuracy = data.frame()
+  RT = data.frame()
+  Fir_img = data.frame()
+  Sec_img = data.frame()
+  for (i in 1:length(Trials)){
+    
+    temp = unlist(strsplit(Trials[i],","));
+    keyNum = rbind(keyNum,as.numeric(temp[2]))
+    accuracy = rbind(accuracy,as.numeric(temp[4]))
+    RT = rbind(RT,as.numeric(temp[5]))
+    if (i==2){
+      Fir_img = rbind(Fir_img,0)
+    }else{Fir_img = rbind(Fir_img,as.numeric(temp[6]))}
+    
+    Sec_img = rbind(Sec_img,0)
+    feature_index = rbind(feature_index,as.numeric(temp[7]))
+  }
+  data = cbind(keyNum,accuracy,RT, Fir_img,Sec_img,feature_index)
+  colnames(data) = c("keys","accuracy", "rt", "Fimg","Simg","feature_index")
+  data = data[-1,]
+  data$subID = tempSubID;
+  data$trialNum = 1:dim(data)[1];
+  data$run = runNum ;
+  
+  totalData = rbind(totalData,data)
+  #}else{}
+}#for
+```
+
+####Save totalData .csv
+```{r}
+write.csv(totalData, file = paste0(data_new_fname,".csv"))
+```

@@ -10,7 +10,7 @@ Here you can find example codes for generating 3D novel objects in POV-Ray and o
 Example codes I used to generate noval 3D objects in POV-Ray. Parts of an object are divided into three feature sets. Each feature contains more than one part of the object, but parts in one feature are manipulated together. Each feature has 70 levels of variations. For example, for parts belong to one feature, the parts may become larger and pointer from level one to level seventy. 
 
 ## Neural_network
-An example script I used to test designed parameters. Inputs are parameters used to design each object's features. The model is trained to identify two categories of objects by their features. 
+An example script (Colab) I used to test designed parameters. Inputs are parameters used to design each object's features. The model is trained to identify two categories of objects by their features. 
 
 ## Online_calibraion_tasks/Prolific
 Example codes I used to create online behavioral tasks. This is an object discrimination task. Subjects will see a series of objects. His/Her task is to determine whether they are the same or different. 

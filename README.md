@@ -13,7 +13,7 @@ Example codes I used to generate noval 3D objects in POV-Ray. Parts of an object
 An example script (Colab) I used to test designed parameters. Inputs are parameters defining each object's features. The model is trained to identify two categories of objects based on their features. 
 
 ## Online_calibraion_tasks/Prolific
-Example codes I used to create online behavioral tasks. This is an object discrimination task. Subjects will see a series of objects. His/Her task is to determine whether they are the same or different. 
+Example codes I used to create online behavioral tasks. This is an object discrimination task. Subjects will see a series of objects. Subjects were asked to determine whether the objects are the same or different. 
 An example task: https://web.stanford.edu/~shaofang/Prolific_Calibration_70levels_V317/Menu.html
 
 ## Calibration_analysis
